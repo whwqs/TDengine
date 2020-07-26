@@ -672,7 +672,7 @@ Authorization: Basic <TOKEN>
 
 HTTP请求的BODY里就是一个完整的SQL语句，SQL语句中的数据表应提供数据库前缀，例如\<db-name>.\<tb-name>。如果表名不带数据库前缀，系统会返回错误。因为HTTP模块只是一个简单的转发，没有当前DB的概念。 
 
-使用curl通过自定义身份认证方式来发起一个HTTP Request, 语法如下：
+使用curl通过自定义身份认证方式来发起一个HTTP Request，语法如下：
 
 ```
 curl -H 'Authorization: Basic <TOKEN>' -d '<SQL>' <ip>:<PORT>/rest/sql
@@ -684,7 +684,7 @@ curl -H 'Authorization: Basic <TOKEN>' -d '<SQL>' <ip>:<PORT>/rest/sql
 curl -u username:password -d '<SQL>' <ip>:<PORT>/rest/sql
 ```
 
-其中，`TOKEN`为`{username}:{password}`经过Base64编码之后的字符串, 例如`root:taosdata`编码后为`cm9vdDp0YW9zZGF0YQ==`
+其中，`TOKEN`为`{username}:{password}`经过Base64编码之后的字符串，例如`root:taosdata`编码后为`cm9vdDp0YW9zZGF0YQ==`
 
 ### HTTP返回格式
 
@@ -693,10 +693,10 @@ curl -u username:password -d '<SQL>' <ip>:<PORT>/rest/sql
 ```
 {
     "status": "succ",
-    "head": ["column1","column2", …],
+    "head": ["Time Stamp","current", …],
     "data": [
-        ["2017-12-12 23:44:25.730", 1],
-        ["2017-12-12 22:44:25.728", 4]
+        ["2018-10-03 14:38:05.000", 10.3, …],
+        ["2018-10-03 14:38:15.000", 12.6, …]
     ],
     "rows": 2
 } 
@@ -706,18 +706,18 @@ curl -u username:password -d '<SQL>' <ip>:<PORT>/rest/sql
 
 - status: 告知操作结果是成功还是失败
 - head: 表的定义，如果不返回结果集，仅有一列“affected_rows”
-- data: 具体返回的数据，一排一排的呈现,如果不返回结果集，仅[[affected_rows]]
+- data: 具体返回的数据，一排一排的呈现，如果不返回结果集，仅[[affected_rows]]
 - rows: 表明总共多少行数据
 
 ### 自定义授权码
 
-HTTP请求中需要带有授权码`<TOKEN>`, 用于身份识别。授权码通常由管理员提供, 可简单的通过发送`HTTP GET`请求来获取授权码, 操作如下：
+HTTP请求中需要带有授权码`<TOKEN>`，用于身份识别。授权码通常由管理员提供，可简单的通过发送`HTTP GET`请求来获取授权码，操作如下：
 
 ```
 curl http://<ip>:6020/rest/login/<username>/<password>
 ```
 
-其中, `ip`是TDengine数据库的IP地址, `username`为数据库用户名, `password`为数据库密码, 返回值为`JSON`格式, 各字段含义如下：
+其中，`ip`是TDengine数据库的IP地址，`username`为数据库用户名，`password`为数据库密码，返回值为`JSON`格式，各字段含义如下：
 
 - status：请求结果的标志位
 
@@ -737,27 +737,26 @@ curl http://192.168.0.1:6020/rest/login/root/taosdata
 {
   "status": "succ",
   "code": 0,
-  "desc": 
-"/KfeAzX/f9na8qdtNZmtONryp201ma04bEl8LcvLUd7a8qdtNZmtONryp201ma04"
+  "desc": "/KfeAzX/f9na8qdtNZmtONryp201ma04bEl8LcvLUd7a8qdtNZmtONryp201ma04"
 }
 ```
 
 ### 使用示例
 
-- 在demo库里查询表t1的所有记录： 
+- 在demo库里查询表d1001的所有记录： 
 
 ```
-curl -H 'Authorization: Basic cm9vdDp0YW9zZGF0YQ==' -d 'select * from demo.t1' 192.168.0.1:6020/rest/sql`
+curl -H 'Authorization: Basic cm9vdDp0YW9zZGF0YQ==' -d 'select * from demo.d1001' 192.168.0.1:6020/rest/sql`
 ```
 返回值：
 
 ```
 {
     "status": "succ",
-    "head": ["column1","column2","column3"],
+    "head": ["Time Stamp","current","voltage","phase"],
     "data": [
-        ["2017-12-12 22:44:25.728",4,5.60000],
-        ["2017-12-12 23:44:25.730",1,2.30000]
+        ["2018-10-03 14:38:05.000",10.3,219,0.31],
+        ["2018-10-03 14:38:15.000",12.6,218,0.33]
     ],
     "rows": 2
 }
@@ -786,7 +785,7 @@ curl -H 'Authorization: Basic cm9vdDp0YW9zZGF0YQ==' -d 'create database demo' 19
 HTTP请求URL采用`sqlt`时，返回结果集的时间戳将采用Unix时间戳格式表示，例如
 
 ```
-curl -H 'Authorization: Basic cm9vdDp0YW9zZGF0YQ==' -d 'select * from demo.t1' 192.168.0.1:6020/rest/sqlt
+curl -H 'Authorization: Basic cm9vdDp0YW9zZGF0YQ==' -d 'select * from demo.d1001' 192.168.0.1:6020/rest/sqlt
 ```
 
 返回值：
@@ -796,8 +795,8 @@ curl -H 'Authorization: Basic cm9vdDp0YW9zZGF0YQ==' -d 'select * from demo.t1' 1
     "status": "succ",
     "head": ["column1","column2","column3"],
     "data": [
-        [1513089865728,4,5.60000],
-        [1513093465730,1,2.30000]
+        [1538548685000,10.3,219,0.31],
+        [1538548695000,12.6,218,0.33]
     ],
     "rows": 2
 }
@@ -817,8 +816,8 @@ HTTP请求URL采用`sqlutc`时，返回结果集的时间戳将采用UTC时间�
     "status": "succ",
     "head": ["column1","column2","column3"],
     "data": [
-        ["2017-12-12T22:44:25.728+0800",4,5.60000],
-        ["2017-12-12T23:44:25.730+0800",1,2.30000]
+        ["2018-10-03T14:38:05.000+0800",10.3,219,0.31],
+        ["2018-10-03T14:38:15.000+0800",12.6,218,0.33]
     ],
     "rows": 2
 }
@@ -828,13 +827,11 @@ HTTP请求URL采用`sqlutc`时，返回结果集的时间戳将采用UTC时间�
 
 下面仅列出一些与RESTFul接口有关的配置参数，其他系统参数请看配置文件里的说明。注意：配置修改后，需要重启taosd服务才能生效
 
-- httpIp: 对外提供RESTFul服务的IP地址，默认绑定到0.0.0.0
 - httpPort: 对外提供RESTFul服务的端口号，默认绑定到6020
 - httpMaxThreads: 启动的线程数量，默认为2
-- httpCacheSessions: 缓存连接的数量，并发请求数目需小于此数值的10倍，默认值为100
 - restfulRowLimit: 返回结果集（JSON格式）的最大条数，默认值为10240
 - httpEnableCompress: 是否支持压缩，默认不支持，目前TDengine仅支持gzip压缩格式
-- httpDebugFlag: 日志开关，131：仅错误和报警信息，135：所有，默认131
+- httpDebugFlag: 日志开关，131：仅错误和报警信息，135：调试信息，143：非常详细的调试信息，默认131
 
 
 ## Go Connector

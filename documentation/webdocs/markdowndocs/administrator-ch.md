@@ -1,5 +1,31 @@
 #系统管理
 
+## 容量规划
+
+系统的处理能力是有限的，但通过对TDengine配置参数的调整，可以在性能与容量上进行平衡。
+
+**内存需求**
+
+每个Database可以创建固定数目的Vnode，默认与CPU核数相同，可通过maxVgroupsPerDb配置；每个vnode会占用固定大小的内存，与参数blocks和cache有关；每个Table会占用与Tag总大小有关的内存；此外，系统会有一些固定的内存开销。因此，每个Database需要的系统内存可通过如下公式计算：
+
+```
+Memory Size = maxVgroupsPerDb * (blocks * cache + 10Mb) + numOfTablesPerDb * (tagSizePerTable + 0.5Kb)
+```
+
+**CPU需求**
+
+每个Vnode可以容纳的最大数据表数，可以通过参数maxTablesPerVnode设置，但每个Vnode的数据表数在1万以下性能最佳。系统总的Vnode数目最好不要超过CPU核数的两倍。
+
+**存储需求**
+
+在绝大多数场景下，TDengine的压缩比不会低于5倍。压缩前的原始数据大小可通过如下方式计算：
+
+```
+Raw DataSize = numOfTables * rowSizePerTable * rowsPerTable
+```
+
+用户可以通过参数keep，设置数据在磁盘中的最大保存时长。
+
 ## 文件目录结构
 
 安装TDengine的过程中，安装程序将在操作系统中创建以下目录或文件：
