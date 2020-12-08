@@ -79,3 +79,9 @@ tests/comparisonTest/opentsdb/opentsdbtest/.settings/
 tests/examples/JDBC/JDBCDemo/.classpath
 tests/examples/JDBC/JDBCDemo/.project
 tests/examples/JDBC/JDBCDemo/.settings/
+/whwqs/testform/testform.csproj.user
+/whwqs/testform/bin
+/whwqs/trpcdll/bin
+/whwqs/trpcdll/trpcdll.vcxproj.user
+/whwqs/trpcdll/server.log.0
+/whwqs/trpcdll/server.data
