@@ -38,11 +38,13 @@
 			this.button4 = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.button3 = new System.Windows.Forms.Button();
+			this.lbl服务监听状态 = new System.Windows.Forms.Label();
+			this.lbl客户端rpc创建状态 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// button1
 			// 
-			this.button1.Location = new System.Drawing.Point(58, 37);
+			this.button1.Location = new System.Drawing.Point(12, 12);
 			this.button1.Name = "button1";
 			this.button1.Size = new System.Drawing.Size(100, 23);
 			this.button1.TabIndex = 0;
@@ -52,9 +54,9 @@
 			// 
 			// button2
 			// 
-			this.button2.Location = new System.Drawing.Point(116, 332);
+			this.button2.Location = new System.Drawing.Point(121, 171);
 			this.button2.Name = "button2";
-			this.button2.Size = new System.Drawing.Size(75, 79);
+			this.button2.Size = new System.Drawing.Size(238, 23);
 			this.button2.TabIndex = 1;
 			this.button2.Text = "客户端发送消息并接收结果";
 			this.button2.UseVisualStyleBackColor = true;
@@ -62,33 +64,34 @@
 			// 
 			// txtRec1
 			// 
-			this.txtRec1.Location = new System.Drawing.Point(206, 37);
+			this.txtRec1.Location = new System.Drawing.Point(250, 17);
 			this.txtRec1.Multiline = true;
 			this.txtRec1.Name = "txtRec1";
 			this.txtRec1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtRec1.Size = new System.Drawing.Size(538, 217);
+			this.txtRec1.Size = new System.Drawing.Size(538, 89);
 			this.txtRec1.TabIndex = 2;
 			// 
 			// txtSend
 			// 
-			this.txtSend.Location = new System.Drawing.Point(206, 315);
+			this.txtSend.Location = new System.Drawing.Point(12, 214);
 			this.txtSend.Multiline = true;
 			this.txtSend.Name = "txtSend";
-			this.txtSend.Size = new System.Drawing.Size(538, 123);
+			this.txtSend.Size = new System.Drawing.Size(776, 103);
 			this.txtSend.TabIndex = 3;
+			this.txtSend.Text = "要发送的消息：123，,\'\"“”，！@#）（";
 			// 
 			// txtRec2
 			// 
-			this.txtRec2.Location = new System.Drawing.Point(206, 497);
+			this.txtRec2.Location = new System.Drawing.Point(12, 323);
 			this.txtRec2.Multiline = true;
 			this.txtRec2.Name = "txtRec2";
 			this.txtRec2.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtRec2.Size = new System.Drawing.Size(538, 217);
+			this.txtRec2.Size = new System.Drawing.Size(776, 262);
 			this.txtRec2.TabIndex = 4;
 			// 
 			// txtTimes
 			// 
-			this.txtTimes.Location = new System.Drawing.Point(12, 362);
+			this.txtTimes.Location = new System.Drawing.Point(12, 172);
 			this.txtTimes.Name = "txtTimes";
 			this.txtTimes.Size = new System.Drawing.Size(66, 21);
 			this.txtTimes.TabIndex = 5;
@@ -96,7 +99,7 @@
 			// 
 			// btnRpcOpen
 			// 
-			this.btnRpcOpen.Location = new System.Drawing.Point(21, 266);
+			this.btnRpcOpen.Location = new System.Drawing.Point(12, 123);
 			this.btnRpcOpen.Name = "btnRpcOpen";
 			this.btnRpcOpen.Size = new System.Drawing.Size(137, 23);
 			this.btnRpcOpen.TabIndex = 7;
@@ -106,7 +109,7 @@
 			// 
 			// button4
 			// 
-			this.button4.Location = new System.Drawing.Point(58, 82);
+			this.button4.Location = new System.Drawing.Point(12, 41);
 			this.button4.Name = "button4";
 			this.button4.Size = new System.Drawing.Size(100, 23);
 			this.button4.TabIndex = 8;
@@ -117,7 +120,7 @@
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(93, 365);
+			this.label1.Location = new System.Drawing.Point(91, 176);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(17, 12);
 			this.label1.TabIndex = 9;
@@ -125,19 +128,39 @@
 			// 
 			// button3
 			// 
-			this.button3.Location = new System.Drawing.Point(175, 266);
+			this.button3.Location = new System.Drawing.Point(311, 123);
 			this.button3.Name = "button3";
-			this.button3.Size = new System.Drawing.Size(116, 23);
+			this.button3.Size = new System.Drawing.Size(137, 23);
 			this.button3.TabIndex = 10;
 			this.button3.Text = "关闭客户端rpc";
 			this.button3.UseVisualStyleBackColor = true;
 			this.button3.Click += new System.EventHandler(this.关闭客户端rpc_Click);
 			// 
+			// lbl服务监听状态
+			// 
+			this.lbl服务监听状态.AutoSize = true;
+			this.lbl服务监听状态.Location = new System.Drawing.Point(134, 17);
+			this.lbl服务监听状态.Name = "lbl服务监听状态";
+			this.lbl服务监听状态.Size = new System.Drawing.Size(101, 12);
+			this.lbl服务监听状态.TabIndex = 11;
+			this.lbl服务监听状态.Text = "服务监听尚未开启";
+			// 
+			// lbl客户端rpc创建状态
+			// 
+			this.lbl客户端rpc创建状态.AutoSize = true;
+			this.lbl客户端rpc创建状态.Location = new System.Drawing.Point(171, 128);
+			this.lbl客户端rpc创建状态.Name = "lbl客户端rpc创建状态";
+			this.lbl客户端rpc创建状态.Size = new System.Drawing.Size(107, 12);
+			this.lbl客户端rpc创建状态.TabIndex = 12;
+			this.lbl客户端rpc创建状态.Text = "尚未创建客户端rpc";
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 773);
+			this.ClientSize = new System.Drawing.Size(800, 595);
+			this.Controls.Add(this.lbl客户端rpc创建状态);
+			this.Controls.Add(this.lbl服务监听状态);
 			this.Controls.Add(this.button3);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.button4);
@@ -167,6 +190,8 @@
 		private System.Windows.Forms.Button button4;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Button button3;
+		private System.Windows.Forms.Label lbl服务监听状态;
+		private System.Windows.Forms.Label lbl客户端rpc创建状态;
 	}
 }
 

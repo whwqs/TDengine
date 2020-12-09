@@ -70,7 +70,7 @@ void SetDebug(int32_t _rpcDebugFlag) {
 
 void SetCompressMsgSize(int32_t CompressMsgSize) { tsCompressMsgSize = CompressMsgSize; }
 
-void SetpRpcCfp(void *param, void (*cfp)(SRpcMsg *, SRpcEpSet *)) {
+void SetRpcCfp(void *param, void (*cfp)(SRpcMsg *, SRpcEpSet *)) {
     _SRpcInfo *_pRpc = (_SRpcInfo *)param;
   _pRpc->cfp = cfp;  
 }

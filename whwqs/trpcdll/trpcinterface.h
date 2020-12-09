@@ -42,7 +42,7 @@ typedef struct TrpcEpSet {
   //[TSDB_MAX_REPLICA][TSDB_FQDN_LEN];
 } TrpcEpSet;
 
-void SetpRpcCfp(void *param, void (*cfp)(SRpcMsg *, SRpcEpSet *));
+void SetRpcCfp(void *param, void (*cfp)(SRpcMsg *, SRpcEpSet *));
 
 DLLAPI void *StartServerListen(TrpcServerInit initData);
 

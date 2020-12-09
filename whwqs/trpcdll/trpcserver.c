@@ -10,37 +10,36 @@ int             serverDataFd = -1;
 RequestCallback callback;
 
 void serverProcessRequestMsg(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
-  SRpcMsg *pTemp;
-
-  pTemp = taosAllocateQitem(sizeof(SRpcMsg));
-  memcpy(pTemp, pMsg, sizeof(SRpcMsg));
   if (commit) {
     if (write(serverDataFd, pMsg->pCont, pMsg->contLen) < 0) {
       tInfo("failed to write data file, reason:%s", strerror(errno));
     }
   }
 
-  if (callback) {
-    char *strTmp = (char *)calloc(1, pMsg->contLen + 1);
-    strcpy(strTmp, pMsg->pCont);
-    strTmp[pMsg->contLen] = '\0';
-    char *strMsg = callback(strTmp);
-    int   Length = (int)strlen(strMsg);
+  SRpcMsg *pTemp =  calloc(1, sizeof(SRpcMsg));  
+  memcpy(pTemp, pMsg, sizeof(SRpcMsg));  
+
+  if (callback) {    
+    /*char *inMsg = malloc(pMsg->contLen+1);
+    strcpy(inMsg, pMsg->pCont);
+    inMsg[pMsg->contLen] = '\0';*/
+    char *outMsg = callback((char *)pMsg->pCont);
+    //free(inMsg);
+    int   Length = (int)strlen(outMsg);
 
     pTemp->pCont = rpcMallocCont(Length);
     pTemp->contLen = Length;
-    strcpy(pTemp->pCont, strMsg);
+    strcpy(pTemp->pCont, outMsg);
     pTemp->msgType = 1;
-
-    rpcSendResponse(pTemp);
-     //rpcFreeCont(pTemp->pCont);//会报错
   }
+
+  rpcSendResponse(pTemp);
 }
 
-void * StartServerListen(TrpcServerInit initData) {
-  //taosBlockSIGPIPE();
+void *StartServerListen(TrpcServerInit initData) {
+  // taosBlockSIGPIPE();
   SRpcInit serverRpcInit;
-  callback = initData.requestcbk; //服务端反馈处理回调
+  callback = initData.requestcbk;  //服务端反馈处理回调
   memset(&serverRpcInit, 0, sizeof(serverRpcInit));
   serverRpcInit.localPort = initData.rpcInit.localPort;
   serverRpcInit.label = initData.rpcInit.label;

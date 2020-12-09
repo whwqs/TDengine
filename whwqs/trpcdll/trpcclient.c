@@ -21,12 +21,9 @@ typedef struct {
 
 static void processResponse(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
   SInfo *pInfo = (SInfo *)pMsg->ahandle;
-  if (pEpSet) pInfo->epSet = *pEpSet;
-  pInfo->result = (char *)calloc(1, pMsg->contLen+1);
-  strcpy(pInfo->result, pMsg->pCont);
-  pInfo->result[pMsg->contLen] = '\0'; 
-  //rpcClose(pInfo->pRpc);
-  //rpcFreeCont(pMsg->pCont);
+  if (pEpSet) pInfo->epSet = *pEpSet; 
+  pInfo->result = calloc(1, pMsg->contLen);
+  strcpy(pInfo->result, pMsg->pCont);  
   tsem_post(&pInfo->rspSem);
 }
 
@@ -36,41 +33,38 @@ static void *sendRequest(void *param) {
   return NULL;
 }
 
-char *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, char *pCont) {    
+char *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, char *pCont) {
+    
+    if (!pCont) {
+      return NULL;
+    }
 
-    SetpRpcCfp(pRpc, processResponse);
+    int length = (int)strlen(pCont);  
 
-	SRpcEpSet epSet;
+    if (length == 0) {
+      return NULL;
+    }
+
+    SetRpcCfp(pRpc, processResponse);
+
+    SRpcEpSet epSet;
     epSet.numOfEps = serverEps.numOfEps;
-    epSet.inUse = serverEps.inUse;    
+    epSet.inUse = serverEps.inUse;
     for (int i = 0; i < TSDB_MAX_REPLICA; i++) {
       epSet.port[i] = serverEps.port[i];
       strcpy(epSet.fqdn[i], serverEps.fqdn[i]);
-    }
-
-    char* space = (char *)calloc(1, 0);
-
-    if (!pCont) {
-      return space;
-    }
-
-    int length = (int)strlen(pCont);    
-
-    if (length <= 0) {
-      return space;
-    }
-
-    length = (int)strlen(pCont);  
+    }   
 
     SRpcMsg rpcMsg = {0};
     rpcMsg.pCont = rpcMallocCont(length);
     rpcMsg.contLen = length;
     strcpy(rpcMsg.pCont, pCont);
+    
     rpcMsg.msgType = 1;
 
     pthread_attr_t thattr;
     pthread_attr_init(&thattr);
-    pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_JOINABLE);
+    pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_JOINABLE);  // PTHREAD_CREATE_JOINABLE PTHREAD_CREATE_DETACHED
 
     SInfo *pInfo = (SInfo *)calloc(1, sizeof(SInfo) * 1);
     rpcMsg.ahandle = pInfo;
