@@ -20,17 +20,21 @@ void serverProcessRequestMsg(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
   memcpy(pTemp, pMsg, sizeof(SRpcMsg));  
 
   if (callback) {    
-    /*char *inMsg = malloc(pMsg->contLen+1);
-    strcpy(inMsg, pMsg->pCont);
-    inMsg[pMsg->contLen] = '\0';*/
-    char *outMsg = callback((char *)pMsg->pCont);
-    //free(inMsg);
-    int   Length = (int)strlen(outMsg);
-
-    pTemp->pCont = rpcMallocCont(Length);
-    pTemp->contLen = Length;
-    strcpy(pTemp->pCont, outMsg);
-    pTemp->msgType = 1;
+    char *inMsg = (char *)malloc((pMsg->contLen+1)*sizeof(char));
+    
+    if (NULL != inMsg) {
+      strcpy(inMsg, pMsg->pCont);
+      inMsg[pMsg->contLen] = '\0';
+      char *outMsg = callback(inMsg);
+      //free(inMsg);
+      int Length = (int)strlen(outMsg);
+      pTemp->pCont = rpcMallocCont(Length);
+      pTemp->contLen = Length;
+      strcpy(pTemp->pCont, outMsg);
+      pTemp->msgType = 1;
+    } else {
+      tInfo("serverProcessRequestMsg:failed to malloc, reason:%s", strerror(errno));
+    }
   }
 
   rpcSendResponse(pTemp);
