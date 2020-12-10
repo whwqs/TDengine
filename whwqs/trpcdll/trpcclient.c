@@ -22,8 +22,14 @@ typedef struct {
 static void processResponse(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
   SInfo *pInfo = (SInfo *)pMsg->ahandle;
   if (pEpSet) pInfo->epSet = *pEpSet; 
-  pInfo->result = calloc(1, pMsg->contLen);
-  strcpy(pInfo->result, pMsg->pCont);  
+  if (NULL != pMsg->pCont && pMsg->contLen>0) 
+  {
+    pInfo->result = calloc(1, pMsg->contLen + 1);
+    memcpy(pInfo->result, pMsg->pCont,pMsg->contLen);
+    pInfo->result[pMsg->contLen] = '\0';
+  } else {
+    pInfo->result = NULL;
+  }
   tsem_post(&pInfo->rspSem);
 }
 
@@ -58,14 +64,8 @@ char *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, char *pCont) {
     SRpcMsg rpcMsg = {0};
     rpcMsg.pCont = rpcMallocCont(length);
     rpcMsg.contLen = length;
-    strcpy(rpcMsg.pCont, pCont);
-    
+    strcpy(rpcMsg.pCont, pCont);    
     rpcMsg.msgType = 1;
-
-    pthread_attr_t thattr;
-    pthread_attr_init(&thattr);
-    pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_JOINABLE);  // PTHREAD_CREATE_JOINABLE PTHREAD_CREATE_DETACHED
-
     SInfo *pInfo = (SInfo *)calloc(1, sizeof(SInfo) * 1);
     rpcMsg.ahandle = pInfo;
     pInfo->index = 0;
@@ -75,10 +75,13 @@ char *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, char *pCont) {
     pInfo->pMsg = &rpcMsg;
     pInfo->pRpc = pRpc;
     tsem_init(&pInfo->rspSem, 0, 0);
-    
+
+    pthread_attr_t thattr;
+    pthread_attr_init(&thattr);
+    pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_JOINABLE);  // PTHREAD_CREATE_JOINABLE PTHREAD_CREATE_DETACHED
     pthread_create(&pInfo->thread, &thattr, sendRequest, pInfo);
     
-    tsem_wait(&pInfo->rspSem);    
+    tsem_wait(&pInfo->rspSem); 
     
 	return pInfo->result;
 }

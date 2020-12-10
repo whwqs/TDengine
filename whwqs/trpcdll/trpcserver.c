@@ -16,27 +16,28 @@ void serverProcessRequestMsg(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
     }
   }
 
-  SRpcMsg *pTemp =  calloc(1, sizeof(SRpcMsg));  
+  SRpcMsg *pTemp = calloc(1, sizeof(SRpcMsg));
   memcpy(pTemp, pMsg, sizeof(SRpcMsg));  
+  pTemp->pCont = rpcMallocCont(0);
+  pTemp->contLen = 0;
 
-  if (callback) {    
-    char *inMsg = (char *)malloc((pMsg->contLen+1)*sizeof(char));
-    
+  if (callback) {
+    char *inMsg = (char *)malloc(pMsg->contLen + 1);
+
     if (NULL != inMsg) {
-      strcpy(inMsg, pMsg->pCont);
+      memcpy(inMsg, pMsg->pCont, pMsg->contLen);
       inMsg[pMsg->contLen] = '\0';
       char *outMsg = callback(inMsg);
-      //free(inMsg);
-      int Length = (int)strlen(outMsg);
-      pTemp->pCont = rpcMallocCont(Length);
-      pTemp->contLen = Length;
-      strcpy(pTemp->pCont, outMsg);
-      pTemp->msgType = 1;
-    } else {
-      tInfo("serverProcessRequestMsg:failed to malloc, reason:%s", strerror(errno));
-    }
+      free(inMsg);
+      if (NULL != outMsg) {
+        int Length = (int)strlen(outMsg);
+        pTemp->pCont = rpcMallocCont(Length);
+        pTemp->contLen = Length;
+        strcpy(pTemp->pCont, outMsg);
+        free(outMsg);
+      }
+    }    
   }
-
   rpcSendResponse(pTemp);
 }
 
@@ -53,7 +54,7 @@ void *StartServerListen(TrpcServerInit initData) {
   serverRpcInit.idleTime = initData.rpcInit.idleTime;
   // rpcInit.afp = retrieveAuthInfo;
   serverRpcInit.connType = TAOS_CONN_SERVER;
-
+  commit = FALSE;
   if (initData.commit) {
     serverDataFd = open(initData.dataFile, O_APPEND | O_CREAT | O_WRONLY, S_IRWXU | S_IRWXG | S_IRWXO);
     if (serverDataFd < 0) {

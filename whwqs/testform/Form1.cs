@@ -35,7 +35,7 @@ namespace testform
 		{
 			TrpcSDK.InitLog("server.log", 100000, 10);
 			TrpcSDK.SetDebug(131);
-			//TrpcSDK.SetCompressMsgSize(-1);
+			//TrpcSDK.SetCompressMsgSize(0);
 			_SRpcInit rpcInit = new _SRpcInit();
 			rpcInit.connType = 0;
 			rpcInit.idleTime = 1;
@@ -100,6 +100,7 @@ namespace testform
 
 			TrpcSDK.InitLog("c1ient.log", 100000, 10);
 			TrpcSDK.SetDebug(131);
+			//TrpcSDK.SetCompressMsgSize(0);
 			TrpcEpSet serverEpSet = new TrpcEpSet();
 			serverEpSet.port = new ushort[] { 7000,10,10,10,110 };
 			serverEpSet.fqdn = new IntPtr[5] {  Marshal.StringToHGlobalAnsi("127.0.0.1"),  Marshal.StringToHGlobalAnsi(""),
