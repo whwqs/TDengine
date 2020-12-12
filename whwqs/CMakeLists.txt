@@ -1,0 +1,6 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+PROJECT(TDengine)
+
+# Base compile
+ADD_SUBDIRECTORY(test)
+

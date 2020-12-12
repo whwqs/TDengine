@@ -1,26 +1,7 @@
-#include "os.h"
-#include "tglobal.h"
-#include "rpcLog.h"
-#include "trpc.h"
-#include "tqueue.h"
-#include "exception.h"
 #include "trpcinterface.h"
 
-typedef struct {
-  int       index;
-  SRpcEpSet epSet;
-  int       num;
-  int       numOfReqs;
-  SRpcMsg * pMsg;
-  tsem_t    rspSem;
-  tsem_t *  pOverSem;
-  pthread_t thread;
-  void *    pRpc;
-  char *    result;
-} SInfo;
-
 static void processResponse(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
-  SInfo *pInfo = (SInfo *)pMsg->ahandle;
+  _SInfo *pInfo = (_SInfo *)pMsg->ahandle;
   if (pEpSet) pInfo->epSet = *pEpSet; 
   if (NULL != pMsg->pCont && pMsg->contLen>0) 
   {
@@ -34,7 +15,7 @@ static void processResponse(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
 }
 
 static void *sendRequest(void *param) {
-  SInfo * pInfo = (SInfo *)param;
+  _SInfo * pInfo = (_SInfo *)param;
   rpcSendRequest(pInfo->pRpc, &pInfo->epSet, pInfo->pMsg, NULL);
   return NULL;
 }
@@ -66,7 +47,7 @@ char *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, char *pCont) {
     rpcMsg.contLen = length;
     strcpy(rpcMsg.pCont, pCont);    
     rpcMsg.msgType = 1;
-    SInfo *pInfo = (SInfo *)calloc(1, sizeof(SInfo) * 1);
+    _SInfo *pInfo = (_SInfo *)calloc(1, sizeof(_SInfo) * 1);
     rpcMsg.ahandle = pInfo;
     pInfo->index = 0;
     pInfo->epSet = epSet;

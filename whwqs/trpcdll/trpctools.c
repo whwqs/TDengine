@@ -1,30 +1,4 @@
-#include "exception.h"
-#include "os.h"
-#include "rpcLog.h"
-#include "tglobal.h"
-#include "tqueue.h"
-#include "trpc.h"
 #include "trpcinterface.h"
-
-typedef struct {
-  int      sessions;      // number of sessions allowed
-  int      numOfThreads;  // number of threads to process incoming messages
-  int      idleTime;      // milliseconds;
-  uint16_t localPort;
-  int8_t   connType;
-  int      index;  // for UDP server only, round robin for multiple threads
-  char     label[TSDB_LABEL_LEN];
-
-  char user[TSDB_UNI_LEN];    // meter ID
-  char spi;                   // security parameter index
-  char encrypt;               // encrypt algorithm
-  char secret[TSDB_KEY_LEN];  // secret for the link
-  char ckey[TSDB_KEY_LEN];    // ciphering key
-
-  void (*cfp)(SRpcMsg *, SRpcEpSet *);
-  int (*afp)(char *user, char *spi, char *encrypt, char *secret, char *ckey);
-  
-} _SRpcInfo;
 
 void *_RpcOpen(_SRpcInit _rpcInit) {
   SRpcInit rpcInit;
@@ -47,15 +21,24 @@ void *_RpcOpen(_SRpcInit _rpcInit) {
   rpcInit.encrypt = _rpcInit.encrypt;
   void *pRpc = rpcOpen(&rpcInit);
   if (pRpc == NULL) {
-    tError("failed to initialize RPC");     
+    tError("failed to initialize RPC");
   }
   tInfo("RPC is initialized");
   return pRpc;
 }
 
-void _RpcClose(void *param) { rpcClose(param); }
+void _RpcClose(void *param,bool bServer) {
+  if (NULL != param) {
+    _SRpcInfo *pRpc = (_SRpcInfo *)param;
+    if (bServer) {
+      
+    }
+    rpcClose(param);
+    param = NULL;
+  }
+}
 
-int32_t        InitLog(char *logName, int32_t numOfLogLines, int32_t maxFiles) {
+int32_t InitLog(char *logName, int32_t numOfLogLines, int32_t maxFiles) {
   return taosInitLog(logName, numOfLogLines, maxFiles);
 }
 void CloseLog() { taosCloseLog(); }
@@ -71,6 +54,6 @@ void SetDebug(int32_t _rpcDebugFlag) {
 void SetCompressMsgSize(int32_t CompressMsgSize) { tsCompressMsgSize = CompressMsgSize; }
 
 void SetRpcCfp(void *param, void (*cfp)(SRpcMsg *, SRpcEpSet *)) {
-    _SRpcInfo *_pRpc = (_SRpcInfo *)param;
-  _pRpc->cfp = cfp;  
+  _SRpcInfo *_pRpc = (_SRpcInfo *)param;
+  _pRpc->cfp = cfp;
 }

@@ -21,7 +21,7 @@ namespace testform
 		static extern public IntPtr _RpcOpen(_SRpcInit rpcInit);
 
 		[DllImport("trpcdll.dll", EntryPoint = "_RpcClose", CallingConvention = CallingConvention.Cdecl)]
-		static extern public void _RpcClose(IntPtr param);		
+		static extern public void _RpcClose(IntPtr param, bool bServer);		
 
 		[DllImport("trpcdll.dll", EntryPoint = "InitLog", CallingConvention = CallingConvention.Cdecl)]
 		static extern public int InitLog(string logName, int numOfLogLines, int maxFiles);

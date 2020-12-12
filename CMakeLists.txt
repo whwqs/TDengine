@@ -39,3 +39,20 @@ ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(tests)
 
 INCLUDE(CPack)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ADD_SUBDIRECTORY(whwqs)

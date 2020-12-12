@@ -1,9 +1,3 @@
-#include "exception.h"
-#include "os.h"
-#include "rpcLog.h"
-#include "tglobal.h"
-#include "tqueue.h"
-#include "trpc.h"
 #include "trpcinterface.h"
 boolean         commit = FALSE;
 int             serverDataFd = -1;

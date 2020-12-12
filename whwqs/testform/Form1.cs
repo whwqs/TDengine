@@ -154,7 +154,9 @@ namespace testform
 		{
 			if (服务端rpc != IntPtr.Zero)
 			{
-				TrpcSDK._RpcClose(服务端rpc);
+				TrpcSDK._RpcClose(服务端rpc,true);
+				服务端rpc = IntPtr.Zero;
+				lbl服务监听状态.Text = "服务端关闭监听成功";
 			}
 		}
 
@@ -162,7 +164,9 @@ namespace testform
 		{
 			if (客户端rpc != IntPtr.Zero)
 			{
-				TrpcSDK._RpcClose(客户端rpc);
+				TrpcSDK._RpcClose(客户端rpc,false);
+				客户端rpc = IntPtr.Zero;
+				lbl客户端rpc创建状态.Text = "客户端rpc关闭成功";
 			}
 		}
 	}
