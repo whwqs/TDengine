@@ -592,6 +592,15 @@ void taosTmrCleanUp(void* handle) {
     free(timerMap.slots);
     free(tmrCtrls);
 
+    //restore tmrModuleInit
+    #if defined(LINUX)
+        tmrModuleInit = 0;
+    #elif defined(WINDOWS)
+        tmrModuleInit.done = PTW32_FALSE;
+        tmrModuleInit.lock = 0;
+        tmrModuleInit.reserved1 = 0;
+        tmrModuleInit.reserved2 = 0;
+    #endif
     tmrDebug("timer module is cleaned up");
   }
 }

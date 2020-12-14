@@ -64,6 +64,7 @@ typedef struct {
   void *      shandle;
   SThreadObj **pThreadObj;
   pthread_t   thread;
+  bool         stop;//for taosAcceptTcpConnection
 } SServerObj;
 
 static void   *taosProcessTcpData(void *param);
@@ -89,6 +90,7 @@ void *taosInitTcpServer(uint32_t ip, uint16_t port, char *label, int numOfThread
   pServerObj->port = port;
   tstrncpy(pServerObj->label, label, sizeof(pServerObj->label));
   pServerObj->numOfThreads = numOfThreads;
+  pServerObj->stop = false;//init false
 
   pServerObj->pThreadObj = (SThreadObj **)calloc(sizeof(SThreadObj *), numOfThreads);
   if (pServerObj->pThreadObj == NULL) {
@@ -190,12 +192,18 @@ void taosStopTcpServer(void *handle) {
   if (pServerObj == NULL) return;
   if(pServerObj->fd >=0) shutdown(pServerObj->fd, SHUT_RD);
 
-  if (taosCheckPthreadValid(pServerObj->thread)) {
+  if (taosCheckPthreadValid(pServerObj->thread)) {  
+    //for break taosAcceptTcpConnection
+    SOCKET   sockFd;
+    pServerObj->stop = true;//set true for taosAcceptTcpConnection when accept below socket to break
+    uint32_t peerIp = taosGetIpFromFqdn("127.0.0.1");    
+    sockFd = taosOpenTcpClientSocket(peerIp, pServerObj->port, 0);    
     if (taosComparePthread(pServerObj->thread, pthread_self())) {
       pthread_detach(pthread_self());
     } else {
       pthread_join(pServerObj->thread, NULL);
     }
+    taosCloseSocket(sockFd);
   }
 
   tDebug("%s TCP server is stopped", pServerObj->label);
@@ -230,6 +238,13 @@ static void *taosAcceptTcpConnection(void *arg) {
   while (1) {
     socklen_t addrlen = sizeof(caddr);
     connFd = accept(pServerObj->fd, (struct sockaddr *)&caddr, &addrlen);
+    
+    if (pServerObj->stop) {
+      //when accept rpcClose sended socket
+      tDebug("%s TCP server stop accepting new connections by rpcClose, exiting", pServerObj->label);
+      break;
+    }
+
     if (connFd == -1) {
       if (errno == EINVAL) {
         tDebug("%s TCP server stop accepting new connections, exiting", pServerObj->label);

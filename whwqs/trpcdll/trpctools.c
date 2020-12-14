@@ -27,12 +27,9 @@ void *_RpcOpen(_SRpcInit _rpcInit) {
   return pRpc;
 }
 
-void _RpcClose(void *param,bool bServer) {
+void _RpcClose(void *param) {
   if (NULL != param) {
-    _SRpcInfo *pRpc = (_SRpcInfo *)param;
-    if (bServer) {
-      
-    }
+    _SRpcInfo *pRpc = (_SRpcInfo *)param;    
     rpcClose(param);
     param = NULL;
   }

@@ -16,6 +16,7 @@ extern "C" {
 #include "trpc.h"
 #include "hash.h"
 #include "rpcHead.h"
+#include "tsocket.h"
 
 typedef struct {
   int      sessions;      // number of sessions allowed
@@ -48,43 +49,6 @@ typedef struct {
 } _SRpcInfo;
 
 typedef struct {
-  void *              signature;
-  SOCKET              fd;           // TCP socket FD
-  int                 closedByApp;  // 1: already closed by App
-  void *              thandle;      // handle from upper layer, like TAOS
-  uint32_t            ip;
-  uint16_t            port;
-  struct _SThreadObj *pThreadObj;
-  struct _SFdObj *    prev;
-  struct _SFdObj *    next;
-} _SFdObj;
-
-typedef struct {
-  pthread_t       thread;
-  _SFdObj *       pHead;
-  pthread_mutex_t mutex;
-  uint32_t        ip;
-  bool            stop;
-  SOCKET          pollFd;
-  int             numOfFds;
-  int             threadId;
-  char            label[TSDB_LABEL_LEN];
-  void *          shandle;  // handle passed by upper layer during server initialization
-  void *(*processData)(SRecvInfo *pPacket);
-} _SThreadObj;
-
-typedef struct {
-  SOCKET        fd;
-  uint32_t      ip;
-  uint16_t      port;
-  char          label[TSDB_LABEL_LEN];
-  int           numOfThreads;
-  void *        shandle;
-  _SThreadObj **pThreadObj;
-  pthread_t     thread;
-} _SServerObj;
-
-typedef struct {
   int       index;
   SRpcEpSet epSet;
   int       num;
@@ -96,10 +60,6 @@ typedef struct {
   void *    pRpc;
   char *    result;
 } _SInfo;
-
-void SetRpcCfp(void *param, void (*cfp)(SRpcMsg *, SRpcEpSet *));
-
-//****************************************************************************
 
 typedef struct {
   uint16_t localPort;              // local port
@@ -135,13 +95,15 @@ typedef struct {
   //[TSDB_MAX_REPLICA][TSDB_FQDN_LEN];
 } TrpcEpSet;
 
+void SetRpcCfp(void *param, void (*cfp)(SRpcMsg *, SRpcEpSet *));
+
 DLLAPI void *StartServerListen(TrpcServerInit initData);
 
 DLLAPI char *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, char *pCont);
 
 DLLAPI void *_RpcOpen(_SRpcInit rpcInit);
 
-DLLAPI void _RpcClose(void *param, bool bServer);
+DLLAPI void _RpcClose(void *param);
 
 DLLAPI int32_t InitLog(char *logName, int32_t numOfLogLines, int32_t maxFiles);
 DLLAPI void    CloseLog();
