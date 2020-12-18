@@ -137,7 +137,7 @@ namespace testform
 			rpcInit.localPort = 0;
 			rpcInit.numOfThreads = 1;
 			rpcInit.secret = "####";
-			rpcInit.sessions = 100;
+			rpcInit.sessions = 1000;
 			//rpcInit.spi = '%';
 			rpcInit.user = "wqs";
 			客户端rpc = TrpcSDK._RpcOpen(rpcInit);

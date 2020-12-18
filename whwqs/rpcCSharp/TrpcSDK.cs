@@ -11,60 +11,140 @@ namespace rpcCSharp
 
 	public class TrpcSDK
 	{
-#if __linux__
-		[DllImport("libtrpcdylib.so", EntryPoint = "StartServerListen", CallingConvention = CallingConvention.Cdecl)]
-#else
-		[DllImport("trpcdylib.dll", EntryPoint = "StartServerListen", CallingConvention = CallingConvention.Cdecl)]
-#endif
-		static extern public IntPtr StartServerListen(TrpcServerInit trpcServerInit);
-#if __linux__
-		[DllImport("libtrpcdylib.so", EntryPoint = "ClientSendAndReceive", CallingConvention = CallingConvention.Cdecl)]
-#else
-		[DllImport("trpcdylib.dll", EntryPoint = "ClientSendAndReceive", CallingConvention = CallingConvention.Cdecl)]
-#endif
-		static extern public string ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet, string msg);
-#if __linux__
-		[DllImport("libtrpcdylib.so", EntryPoint = "_RpcOpen", CallingConvention = CallingConvention.Cdecl)]
-#else
-		[DllImport("trpcdylib.dll", EntryPoint = "_RpcOpen", CallingConvention = CallingConvention.Cdecl)]
-#endif
-		static extern public IntPtr _RpcOpen(_SRpcInit rpcInit);
-#if __linux__
-		[DllImport("libtrpcdylib.so", EntryPoint = "_RpcClose", CallingConvention = CallingConvention.Cdecl)]
-#else
-		[DllImport("trpcdylib.dll", EntryPoint = "_RpcClose", CallingConvention = CallingConvention.Cdecl)]
-#endif
-		static extern public void _RpcClose(IntPtr param);
-#if __linux__
-		[DllImport("libtrpcdylib.so", EntryPoint = "InitLog", CallingConvention = CallingConvention.Cdecl)]
-#else
-		[DllImport("trpcdylib.dll", EntryPoint = "InitLog", CallingConvention = CallingConvention.Cdecl)]
-#endif
-		static extern public int InitLog(string logName, int numOfLogLines, int maxFiles);
-#if __linux__
-		[DllImport("libtrpcdylib.so", EntryPoint = "SetDebug", CallingConvention = CallingConvention.Cdecl)]
-#else
-		[DllImport("trpcdylib.dll", EntryPoint = "SetDebug", CallingConvention = CallingConvention.Cdecl)]
-#endif
-		static extern public void SetDebug(int rpcDebugFlag);
-#if __linux__
-		[DllImport("libtrpcdylib.so", EntryPoint = "CloseLog", CallingConvention = CallingConvention.Cdecl)]
-#else
-		[DllImport("trpcdylib.dll", EntryPoint = "CloseLog", CallingConvention = CallingConvention.Cdecl)]
-#endif
-		static extern public void CloseLog();
-#if __linux__
-		[DllImport("libtrpcdylib.so", EntryPoint = "ResetLog", CallingConvention = CallingConvention.Cdecl)]
-#else
-		[DllImport("trpcdylib.dll", EntryPoint = "ResetLog", CallingConvention = CallingConvention.Cdecl)]
-#endif
-		static extern public void ResetLog();
-#if __linux__
-		[DllImport("libtrpcdylib.so", EntryPoint = "SetCompressMsgSize", CallingConvention = CallingConvention.Cdecl)]
-#else
-		[DllImport("trpcdylib.dll", EntryPoint = "SetCompressMsgSize", CallingConvention = CallingConvention.Cdecl)]
-#endif
-		static extern public void SetCompressMsgSize(int CompressMsgSize);
+		static public IntPtr StartServerListen(TrpcServerInit trpcServerInit)
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				return TrpcSDK_LINUX.StartServerListen(trpcServerInit);
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				return TrpcSDK_WINDOWS.StartServerListen(trpcServerInit);
+			}
+
+			return IntPtr.Zero;
+		}
+
+		static public string ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet, string msg)
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				return TrpcSDK_LINUX.ClientSendAndReceive(pRpc, epSet, msg);
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				return TrpcSDK_WINDOWS.ClientSendAndReceive(pRpc, epSet, msg);
+			}
+
+			return null;
+		}
+
+		static public IntPtr _RpcOpen(_SRpcInit rpcInit)
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				return TrpcSDK_LINUX._RpcOpen(rpcInit);
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				return TrpcSDK_WINDOWS._RpcOpen(rpcInit);
+			}
+
+			return IntPtr.Zero;
+		}
+
+		static public void _RpcClose(IntPtr param)
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				TrpcSDK_LINUX._RpcClose(param);
+				return;
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				TrpcSDK_WINDOWS._RpcClose(param);
+				return;
+			}
+		}
+
+		static public int InitLog(string logName, int numOfLogLines, int maxFiles)
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				return TrpcSDK_LINUX.InitLog(logName, numOfLogLines, maxFiles);
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				return TrpcSDK_WINDOWS.InitLog(logName, numOfLogLines, maxFiles);
+			}
+
+			return -99999;
+		}
+
+		static public void SetDebug(int rpcDebugFlag)
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				TrpcSDK_LINUX.SetDebug(rpcDebugFlag);
+				return;
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				TrpcSDK_WINDOWS.SetDebug(rpcDebugFlag);
+				return;
+			}
+		}
+
+		static public void CloseLog()
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				TrpcSDK_LINUX.CloseLog();
+				return;
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				TrpcSDK_WINDOWS.CloseLog();
+				return;
+			}
+		}
+
+		static public void ResetLog()
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				TrpcSDK_LINUX.ResetLog();
+				return;
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				TrpcSDK_WINDOWS.ResetLog();
+				return;
+			}
+		}
+
+		static public void SetCompressMsgSize(int CompressMsgSize)
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				TrpcSDK_LINUX.SetCompressMsgSize(CompressMsgSize);
+				return;
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				TrpcSDK_WINDOWS.SetCompressMsgSize(CompressMsgSize);
+				return;
+			}
+		}
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -118,5 +198,67 @@ namespace rpcCSharp
 		public string secret;
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
 		public string ckey;
+	}
+
+	public class TrpcSDK_WINDOWS
+	{
+
+		[DllImport("trpcdylib.dll", EntryPoint = "StartServerListen", CallingConvention = CallingConvention.Cdecl)]
+		static extern public IntPtr StartServerListen(TrpcServerInit trpcServerInit);
+
+		[DllImport("trpcdylib.dll", EntryPoint = "ClientSendAndReceive", CallingConvention = CallingConvention.Cdecl)]
+		static extern public string ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet, string msg);
+
+		[DllImport("trpcdylib.dll", EntryPoint = "_RpcOpen", CallingConvention = CallingConvention.Cdecl)]
+		static extern public IntPtr _RpcOpen(_SRpcInit rpcInit);
+
+		[DllImport("trpcdylib.dll", EntryPoint = "_RpcClose", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void _RpcClose(IntPtr param);
+
+		[DllImport("trpcdylib.dll", EntryPoint = "InitLog", CallingConvention = CallingConvention.Cdecl)]
+		static extern public int InitLog(string logName, int numOfLogLines, int maxFiles);
+
+		[DllImport("trpcdylib.dll", EntryPoint = "SetDebug", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void SetDebug(int rpcDebugFlag);
+
+		[DllImport("trpcdylib.dll", EntryPoint = "CloseLog", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void CloseLog();
+
+		[DllImport("trpcdylib.dll", EntryPoint = "ResetLog", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void ResetLog();
+
+		[DllImport("trpcdylib.dll", EntryPoint = "SetCompressMsgSize", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void SetCompressMsgSize(int CompressMsgSize);
+	}
+
+	public class TrpcSDK_LINUX
+	{
+
+		[DllImport("libtrpcdylib.so", EntryPoint = "StartServerListen", CallingConvention = CallingConvention.Cdecl)]
+		static extern public IntPtr StartServerListen(TrpcServerInit trpcServerInit);
+
+		[DllImport("libtrpcdylib.so", EntryPoint = "ClientSendAndReceive", CallingConvention = CallingConvention.Cdecl)]
+		static extern public string ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet, string msg);
+
+		[DllImport("libtrpcdylib.so", EntryPoint = "_RpcOpen", CallingConvention = CallingConvention.Cdecl)]
+		static extern public IntPtr _RpcOpen(_SRpcInit rpcInit);
+
+		[DllImport("libtrpcdylib.so", EntryPoint = "_RpcClose", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void _RpcClose(IntPtr param);
+
+		[DllImport("libtrpcdylib.so", EntryPoint = "InitLog", CallingConvention = CallingConvention.Cdecl)]
+		static extern public int InitLog(string logName, int numOfLogLines, int maxFiles);
+
+		[DllImport("libtrpcdylib.so", EntryPoint = "SetDebug", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void SetDebug(int rpcDebugFlag);
+
+		[DllImport("libtrpcdylib.so", EntryPoint = "CloseLog", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void CloseLog();
+
+		[DllImport("libtrpcdylib.so", EntryPoint = "ResetLog", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void ResetLog();
+
+		[DllImport("libtrpcdylib.so", EntryPoint = "SetCompressMsgSize", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void SetCompressMsgSize(int CompressMsgSize);
 	}
 }
