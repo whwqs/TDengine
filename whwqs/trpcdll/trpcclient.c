@@ -46,7 +46,7 @@ char *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, char *pCont) {
     rpcMsg.pCont = rpcMallocCont(length);
     rpcMsg.contLen = length;
     strcpy(rpcMsg.pCont, pCont);    
-    rpcMsg.msgType = 1;
+    rpcMsg.msgType = TSDB_MSG_TYPE_SUBMIT;  // TSDB_MSG_TYPE_QUERY TSDB_MSG_TYPE_SUBMIT
     _SInfo *pInfo = (_SInfo *)calloc(1, sizeof(_SInfo) * 1);
     rpcMsg.ahandle = pInfo;
     pInfo->index = 0;

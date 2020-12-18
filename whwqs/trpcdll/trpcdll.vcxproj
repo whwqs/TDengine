@@ -147,7 +147,7 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)..\whwqs\testform</Command>
+      <Command>copy $(TargetPath) $(SolutionDir)..\whwqs\rpccsharp</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -206,7 +206,7 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)..\whwqs\testform</Command>
+      <Command>copy $(TargetPath) $(SolutionDir)..\whwqs\rpccsharp</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">

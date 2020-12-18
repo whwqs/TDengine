@@ -17,6 +17,7 @@ extern "C" {
 #include "hash.h"
 #include "rpcHead.h"
 #include "tsocket.h"
+#include "taosmsg.h"
 
 typedef struct {
   int      sessions;      // number of sessions allowed
@@ -77,6 +78,43 @@ typedef struct {
   char ckey[TSDB_KEY_LEN];    // ciphering key
 
 } _SRpcInit;
+
+typedef struct {
+  char            info[48];                 // debug info: label + pConn + ahandle
+  int             sid;                      // session ID
+  uint32_t        ownId;                    // own link ID
+  uint32_t        peerId;                   // peer link ID
+  char            user[TSDB_UNI_LEN];       // user ID for the link
+  char            spi;                      // security parameter index
+  char            encrypt;                  // encryption, 0:1
+  char            secret[TSDB_KEY_LEN];     // secret for the link
+  char            ckey[TSDB_KEY_LEN];       // ciphering key
+  char            secured;                  // if set to 1, no authentication
+  uint16_t        localPort;                // for UDP only
+  uint32_t        linkUid;                  // connection unique ID assigned by client
+  uint32_t        peerIp;                   // peer IP
+  uint16_t        peerPort;                 // peer port
+  char            peerFqdn[TSDB_FQDN_LEN];  // peer FQDN or ip string
+  uint16_t        tranId;                   // outgoing transcation ID, for build message
+  uint16_t        outTranId;                // outgoing transcation ID
+  uint16_t        inTranId;                 // transcation ID for incoming msg
+  uint8_t         outType;                  // message type for outgoing request
+  uint8_t         inType;                   // message type for incoming request
+  void *          chandle;                  // handle passed by TCP/UDP connection layer
+  void *          ahandle;                  // handle provided by upper app layter
+  int             retry;                    // number of retry for sending request
+  int             tretry;                   // total retry
+  void *          pTimer;                   // retry timer to monitor the response
+  void *          pIdleTimer;               // idle timer
+  char *          pRspMsg;                  // response message including header
+  int             rspMsgLen;                // response messag length
+  char *          pReqMsg;                  // request message including header
+  int             reqMsgLen;                // request message length
+  _SRpcInfo *      pRpc;                     // the associated SRpcInfo
+  int8_t          connType;                 // connection type
+  int64_t         lockedBy;                 // lock for connection
+  //SRpcReqContext *pContext;                 // request context
+} _SRpcConn;
 
 typedef char *(*RequestCallback)(char *pContent);
 
