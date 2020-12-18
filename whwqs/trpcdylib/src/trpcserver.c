@@ -1,5 +1,5 @@
 #include "trpcinterface.h"
-bool         commit = FALSE;
+bool         commit = 0;
 int             serverDataFd = -1;
 RequestCallback callback;
 
@@ -48,13 +48,13 @@ void *StartServerListen(TrpcServerInit initData) {
   serverRpcInit.idleTime = initData.rpcInit.idleTime;
   // rpcInit.afp = retrieveAuthInfo;
   serverRpcInit.connType = TAOS_CONN_SERVER;
-  commit = FALSE;
+  commit = 0;
   if (initData.commit) {
     serverDataFd = open(initData.dataFile, O_APPEND | O_CREAT | O_WRONLY, S_IRWXU | S_IRWXG | S_IRWXO);
     if (serverDataFd < 0) {
       tInfo("failed to open data file, reason:%s", strerror(errno));
     } else {
-      commit = TRUE;
+      commit = 1;
     }
   }
 
