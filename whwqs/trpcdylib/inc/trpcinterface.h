@@ -6,7 +6,11 @@
 extern "C" {
 #endif
 
+#ifdef _TD_LINUX_64
+#define DLLAPI
+#else
 #define DLLAPI __declspec(dllexport)
+#endif
 
 #include "exception.h"
 #include "os.h"
