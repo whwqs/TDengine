@@ -1,5 +1,5 @@
 #include "trpcinterface.h"
-boolean         commit = FALSE;
+bool         commit = FALSE;
 int             serverDataFd = -1;
 RequestCallback callback;
 
