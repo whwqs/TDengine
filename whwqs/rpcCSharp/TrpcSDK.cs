@@ -12,43 +12,64 @@ namespace rpcCSharp
 	public class TrpcSDK
 	{
 #if __linux__
-[DllImport("trpcdylib.so", EntryPoint = "StartServerListen", CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("libtrpcdylib.so", EntryPoint = "StartServerListen", CallingConvention = CallingConvention.Cdecl)]
 #else
 		[DllImport("trpcdylib.dll", EntryPoint = "StartServerListen", CallingConvention = CallingConvention.Cdecl)]
 #endif
 		static extern public IntPtr StartServerListen(TrpcServerInit trpcServerInit);
 #if __linux__
-		[DllImport("trpcdylib.so", EntryPoint = "ClientSendAndReceive", CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("libtrpcdylib.so", EntryPoint = "ClientSendAndReceive", CallingConvention = CallingConvention.Cdecl)]
 #else
 		[DllImport("trpcdylib.dll", EntryPoint = "ClientSendAndReceive", CallingConvention = CallingConvention.Cdecl)]
 #endif
-		static extern public string ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet,string msg);
-
+		static extern public string ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet, string msg);
+#if __linux__
+		[DllImport("libtrpcdylib.so", EntryPoint = "_RpcOpen", CallingConvention = CallingConvention.Cdecl)]
+#else
 		[DllImport("trpcdylib.dll", EntryPoint = "_RpcOpen", CallingConvention = CallingConvention.Cdecl)]
+#endif
 		static extern public IntPtr _RpcOpen(_SRpcInit rpcInit);
-
+#if __linux__
+		[DllImport("libtrpcdylib.so", EntryPoint = "_RpcClose", CallingConvention = CallingConvention.Cdecl)]
+#else
 		[DllImport("trpcdylib.dll", EntryPoint = "_RpcClose", CallingConvention = CallingConvention.Cdecl)]
-		static extern public void _RpcClose(IntPtr param);		
-
+#endif
+		static extern public void _RpcClose(IntPtr param);
+#if __linux__
+		[DllImport("libtrpcdylib.so", EntryPoint = "InitLog", CallingConvention = CallingConvention.Cdecl)]
+#else
 		[DllImport("trpcdylib.dll", EntryPoint = "InitLog", CallingConvention = CallingConvention.Cdecl)]
+#endif
 		static extern public int InitLog(string logName, int numOfLogLines, int maxFiles);
-
+#if __linux__
+		[DllImport("libtrpcdylib.so", EntryPoint = "SetDebug", CallingConvention = CallingConvention.Cdecl)]
+#else
 		[DllImport("trpcdylib.dll", EntryPoint = "SetDebug", CallingConvention = CallingConvention.Cdecl)]
+#endif
 		static extern public void SetDebug(int rpcDebugFlag);
-
+#if __linux__
+		[DllImport("libtrpcdylib.so", EntryPoint = "CloseLog", CallingConvention = CallingConvention.Cdecl)]
+#else
 		[DllImport("trpcdylib.dll", EntryPoint = "CloseLog", CallingConvention = CallingConvention.Cdecl)]
+#endif
 		static extern public void CloseLog();
-
+#if __linux__
+		[DllImport("libtrpcdylib.so", EntryPoint = "ResetLog", CallingConvention = CallingConvention.Cdecl)]
+#else
 		[DllImport("trpcdylib.dll", EntryPoint = "ResetLog", CallingConvention = CallingConvention.Cdecl)]
+#endif
 		static extern public void ResetLog();
-
+#if __linux__
+		[DllImport("libtrpcdylib.so", EntryPoint = "SetCompressMsgSize", CallingConvention = CallingConvention.Cdecl)]
+#else
 		[DllImport("trpcdylib.dll", EntryPoint = "SetCompressMsgSize", CallingConvention = CallingConvention.Cdecl)]
+#endif
 		static extern public void SetCompressMsgSize(int CompressMsgSize);
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct TrpcServerInit
-	{		
+	{
 		[MarshalAs(UnmanagedType.U1)]
 		public bool commit;
 		[MarshalAs(UnmanagedType.FunctionPtr)]
@@ -63,13 +84,13 @@ namespace rpcCSharp
 	public struct TrpcEpSet
 	{
 		[MarshalAs(UnmanagedType.U1)]
-		public sbyte inUse;		
+		public sbyte inUse;
 		[MarshalAs(UnmanagedType.U1)]
 		public sbyte numOfEps;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 5, ArraySubType = UnmanagedType.U2)]
 		public ushort[] port;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 5, ArraySubType = UnmanagedType.BStr)]
-		public IntPtr[] fqdn;		
+		public IntPtr[] fqdn;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
