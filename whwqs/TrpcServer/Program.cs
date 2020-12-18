@@ -27,7 +27,7 @@ namespace TrpcServer
 			rpcInit.label = "server";
 			rpcInit.localPort = 7000;
 			rpcInit.numOfThreads = 5;
-			rpcInit.sessions = 100;
+			rpcInit.sessions = 1000;
 			TrpcServerInit trpcServerInit = new TrpcServerInit();
 			trpcServerInit.commit = false;
 			trpcServerInit.dataFile = "server.data";
