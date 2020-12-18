@@ -1,4 +1,3 @@
-#pragma once
 #ifndef TRPCINTERFACE_H
 #define TRPCINTERFACE_H
 
@@ -123,7 +122,7 @@ typedef struct {
 typedef char *(*RequestCallback)(char *pContent);
 
 typedef struct {
-  boolean         commit;
+  bool         commit;
   RequestCallback requestcbk;
   char            dataFile[20];
   _SRpcInit       rpcInit;
