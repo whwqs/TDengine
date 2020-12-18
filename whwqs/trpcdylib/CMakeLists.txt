@@ -1,0 +1,15 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+PROJECT(TDengine)
+
+INCLUDE_DIRECTORIES(${TD_COMMUNITY_DIR}/src/rpc/inc)
+INCLUDE_DIRECTORIES(inc)
+AUX_SOURCE_DIRECTORY(src SRC)
+
+# generate dynamic library (*.dll *.so)
+ADD_LIBRARY(trpcdylib SHARED ${SRC})
+TARGET_LINK_LIBRARIES(trpcdylib common query trpc tutil pthread)
+SET_TARGET_PROPERTIES(trpcdylib PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+
+
+
+

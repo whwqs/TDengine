@@ -86,3 +86,6 @@ tests/examples/JDBC/JDBCDemo/.settings/
 /whwqs/trpcdll/server.log.0
 /whwqs/trpcdll/server.data
 /TDengine.sln
+/whwqs/TrpcServer/obj
+/whwqs/TrpcServer/.vs
+/whwqs/TrpcServer/*.user

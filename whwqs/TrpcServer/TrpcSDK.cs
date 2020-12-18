@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace testform
+namespace rpcCSharp
 {
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	public delegate string RequestCallback(string content);
@@ -37,6 +37,9 @@ namespace testform
 
 		[DllImport("trpcdll.dll", EntryPoint = "SetCompressMsgSize", CallingConvention = CallingConvention.Cdecl)]
 		static extern public void SetCompressMsgSize(int CompressMsgSize);
+
+		[DllImport("libhello.so", EntryPoint = "test_a", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void test_a();
 	}
 
 	[StructLayout(LayoutKind.Sequential)]

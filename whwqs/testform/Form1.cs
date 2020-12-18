@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using rpcCSharp;
 
 namespace testform
 {	
@@ -102,8 +103,8 @@ namespace testform
 			TrpcSDK.SetDebug(131);
 			//TrpcSDK.SetCompressMsgSize(0);
 			TrpcEpSet serverEpSet = new TrpcEpSet();
-			serverEpSet.port = new ushort[] { 7000,10,10,10,110 };
-			serverEpSet.fqdn = new IntPtr[5] {  Marshal.StringToHGlobalAnsi("127.0.0.1"),  Marshal.StringToHGlobalAnsi(""),
+			serverEpSet.port = new ushort[] { 7000,0,0,0,0 };
+			serverEpSet.fqdn = new IntPtr[5] {  Marshal.StringToHGlobalAnsi(txtServerIp.Text),  Marshal.StringToHGlobalAnsi(""),
 				 Marshal.StringToHGlobalAnsi(""),  Marshal.StringToHGlobalAnsi(""),
 				 Marshal.StringToHGlobalAnsi("") };
 			serverEpSet.numOfEps = 5;

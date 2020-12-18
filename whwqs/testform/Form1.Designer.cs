@@ -40,6 +40,7 @@
 			this.button3 = new System.Windows.Forms.Button();
 			this.lbl服务监听状态 = new System.Windows.Forms.Label();
 			this.lbl客户端rpc创建状态 = new System.Windows.Forms.Label();
+			this.txtServerIp = new System.Windows.Forms.TextBox();
 			this.SuspendLayout();
 			// 
 			// button1
@@ -64,11 +65,11 @@
 			// 
 			// txtRec1
 			// 
-			this.txtRec1.Location = new System.Drawing.Point(250, 17);
+			this.txtRec1.Location = new System.Drawing.Point(150, 3);
 			this.txtRec1.Multiline = true;
 			this.txtRec1.Name = "txtRec1";
 			this.txtRec1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtRec1.Size = new System.Drawing.Size(538, 89);
+			this.txtRec1.Size = new System.Drawing.Size(538, 73);
 			this.txtRec1.TabIndex = 2;
 			// 
 			// txtSend
@@ -99,7 +100,7 @@
 			// 
 			// btnRpcOpen
 			// 
-			this.btnRpcOpen.Location = new System.Drawing.Point(12, 123);
+			this.btnRpcOpen.Location = new System.Drawing.Point(8, 105);
 			this.btnRpcOpen.Name = "btnRpcOpen";
 			this.btnRpcOpen.Size = new System.Drawing.Size(137, 23);
 			this.btnRpcOpen.TabIndex = 7;
@@ -109,7 +110,7 @@
 			// 
 			// button4
 			// 
-			this.button4.Location = new System.Drawing.Point(12, 41);
+			this.button4.Location = new System.Drawing.Point(8, 53);
 			this.button4.Name = "button4";
 			this.button4.Size = new System.Drawing.Size(100, 23);
 			this.button4.TabIndex = 8;
@@ -128,7 +129,7 @@
 			// 
 			// button3
 			// 
-			this.button3.Location = new System.Drawing.Point(311, 123);
+			this.button3.Location = new System.Drawing.Point(313, 105);
 			this.button3.Name = "button3";
 			this.button3.Size = new System.Drawing.Size(137, 23);
 			this.button3.TabIndex = 10;
@@ -139,7 +140,7 @@
 			// lbl服务监听状态
 			// 
 			this.lbl服务监听状态.AutoSize = true;
-			this.lbl服务监听状态.Location = new System.Drawing.Point(134, 17);
+			this.lbl服务监听状态.Location = new System.Drawing.Point(12, 38);
 			this.lbl服务监听状态.Name = "lbl服务监听状态";
 			this.lbl服务监听状态.Size = new System.Drawing.Size(101, 12);
 			this.lbl服务监听状态.TabIndex = 11;
@@ -148,17 +149,26 @@
 			// lbl客户端rpc创建状态
 			// 
 			this.lbl客户端rpc创建状态.AutoSize = true;
-			this.lbl客户端rpc创建状态.Location = new System.Drawing.Point(171, 128);
+			this.lbl客户端rpc创建状态.Location = new System.Drawing.Point(12, 134);
 			this.lbl客户端rpc创建状态.Name = "lbl客户端rpc创建状态";
 			this.lbl客户端rpc创建状态.Size = new System.Drawing.Size(107, 12);
 			this.lbl客户端rpc创建状态.TabIndex = 12;
 			this.lbl客户端rpc创建状态.Text = "尚未创建客户端rpc";
+			// 
+			// txtServerPort
+			// 
+			this.txtServerIp.Location = new System.Drawing.Point(378, 173);
+			this.txtServerIp.Name = "txtServerPort";
+			this.txtServerIp.Size = new System.Drawing.Size(142, 21);
+			this.txtServerIp.TabIndex = 13;
+			this.txtServerIp.Text = "127.0.0.1";
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(800, 595);
+			this.Controls.Add(this.txtServerIp);
 			this.Controls.Add(this.lbl客户端rpc创建状态);
 			this.Controls.Add(this.lbl服务监听状态);
 			this.Controls.Add(this.button3);
@@ -192,6 +202,7 @@
 		private System.Windows.Forms.Button button3;
 		private System.Windows.Forms.Label lbl服务监听状态;
 		private System.Windows.Forms.Label lbl客户端rpc创建状态;
+		private System.Windows.Forms.TextBox txtServerIp;
 	}
 }
 

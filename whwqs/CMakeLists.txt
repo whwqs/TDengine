@@ -3,4 +3,5 @@ PROJECT(TDengine)
 
 # Base compile
 ADD_SUBDIRECTORY(test)
+ADD_SUBDIRECTORY(trpcdylib)
 
