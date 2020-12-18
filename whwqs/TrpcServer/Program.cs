@@ -17,7 +17,6 @@ namespace TrpcServer
 		}
 		static void Main(string[] args)
 		{
-			TrpcSDK.test_a();
 			serverCallback = requestCallback;
 			TrpcSDK.InitLog("server.log", 100000, 10);
 			TrpcSDK.SetDebug(131);

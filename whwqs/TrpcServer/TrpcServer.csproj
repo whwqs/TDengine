@@ -6,18 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Update="TrpcSDK.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="libhello.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="trpcdll.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\rpcCSharp\rpcCSharp.csproj" />
   </ItemGroup>
 
 </Project>

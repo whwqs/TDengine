@@ -89,3 +89,6 @@ tests/examples/JDBC/JDBCDemo/.settings/
 /whwqs/TrpcServer/obj
 /whwqs/TrpcServer/.vs
 /whwqs/TrpcServer/*.user
+/whwqs/rpcCSharp/*.user
+/whwqs/rpcCSharp/Properties/PublishProfiles/*.user
+/whwqs/rpcCSharp/Properties/PublishProfiles/FolderProfile.pubxml
