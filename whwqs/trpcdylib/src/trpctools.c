@@ -29,7 +29,6 @@ void *_RpcOpen(_SRpcInit _rpcInit) {
 
 void _RpcClose(void *param) {
   if (NULL != param) {
-    _SRpcInfo *pRpc = (_SRpcInfo *)param;    
     rpcClose(param);
     param = NULL;
   }
