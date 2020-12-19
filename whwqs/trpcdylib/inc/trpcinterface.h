@@ -24,7 +24,7 @@ extern "C" {
 
 typedef struct {
   int   length;
-  byte *buffer;
+  void *buffer;
 } TrpcInOut;
 
 typedef struct {
