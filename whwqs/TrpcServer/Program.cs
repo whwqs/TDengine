@@ -8,12 +8,19 @@ namespace TrpcServer
 		static IntPtr 服务端rpc;
 		static int 服务端接收消息条数 = 0;
 		static RequestCallback serverCallback;
-		static string requestCallback(string content)
-		{			
-			服务端接收消息条数++;
-			Console.WriteLine($"{服务端接收消息条数} {content}");
-			string ret = $"服务端收到第{服务端接收消息条数}条消息：" + content + "，并对消息进行处理。";
-			return ret;
+		static TrpcInOut requestCallback(TrpcInOut input)
+		{
+			TrpcInOut output = new TrpcInOut();
+			if (input.length > 0)
+			{
+				string 服务端接收的最后消息 = TrpcTools.Utf8BufferPtrToString(input.buffer, input.length);
+				服务端接收消息条数++;
+				string ret = $"服务端收到第{服务端接收消息条数}条消息：" + 服务端接收的最后消息 + "，并对消息进行处理。";
+				byte[] buf = TrpcTools.StringToUtf8Buffer(ret);
+				output.length = buf.Length;
+				output.buffer = TrpcTools.BytesToIntptr(buf);
+			}
+			return output;
 		}
 		static void Main(string[] args)
 		{

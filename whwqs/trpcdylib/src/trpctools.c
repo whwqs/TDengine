@@ -53,3 +53,13 @@ void SetRpcCfp(void *param, void (*cfp)(SRpcMsg *, SRpcEpSet *)) {
   _SRpcInfo *_pRpc = (_SRpcInfo *)param;
   _pRpc->cfp = cfp;
 }
+
+void FreeTrpcInOut(void *param) {
+  if (param) {
+    TrpcInOut *p = (TrpcInOut *)param;
+    if (p->length > 0) {
+      free(p->buffer);
+    }
+    free(p);
+  }
+}

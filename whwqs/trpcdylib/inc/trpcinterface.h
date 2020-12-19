@@ -23,6 +23,11 @@ extern "C" {
 #include "taosmsg.h"
 
 typedef struct {
+  int   length;
+  byte *buffer;
+} TrpcInOut;
+
+typedef struct {
   int      sessions;      // number of sessions allowed
   int      numOfThreads;  // number of threads to process incoming messages
   int      idleTime;      // milliseconds;
@@ -62,7 +67,7 @@ typedef struct {
   tsem_t *  pOverSem;
   pthread_t thread;
   void *    pRpc;
-  char *    result;
+  TrpcInOut *result;
 } _SInfo;
 
 typedef struct {
@@ -119,7 +124,7 @@ typedef struct {
   //SRpcReqContext *pContext;                 // request context
 } _SRpcConn;
 
-typedef char *(*RequestCallback)(char *pContent);
+typedef TrpcInOut (*RequestCallback)(TrpcInOut pContent);
 
 typedef struct {
   bool         commit;
@@ -136,15 +141,19 @@ typedef struct {
   //[TSDB_MAX_REPLICA][TSDB_FQDN_LEN];
 } TrpcEpSet;
 
+
+
 void SetRpcCfp(void *param, void (*cfp)(SRpcMsg *, SRpcEpSet *));
 
 DLLAPI void *StartServerListen(TrpcServerInit initData);
 
-DLLAPI char *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, char *pCont);
+DLLAPI TrpcInOut *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut pCont);
 
 DLLAPI void *_RpcOpen(_SRpcInit rpcInit);
 
 DLLAPI void _RpcClose(void *param);
+
+DLLAPI void FreeTrpcInOut(void *param);
 
 DLLAPI int32_t InitLog(char *logName, int32_t numOfLogLines, int32_t maxFiles);
 DLLAPI void    CloseLog();

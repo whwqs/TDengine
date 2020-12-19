@@ -5,11 +5,9 @@ static void processResponse(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
   if (pEpSet) pInfo->epSet = *pEpSet; 
   if (NULL != pMsg->pCont && pMsg->contLen>0) 
   {
-    pInfo->result = calloc(1, pMsg->contLen + 1);
-    memcpy(pInfo->result, pMsg->pCont,pMsg->contLen);
-    pInfo->result[pMsg->contLen] = '\0';
-  } else {
-    pInfo->result = NULL;
+    pInfo->result->length = pMsg->contLen;
+    pInfo->result->buffer = calloc(pMsg->contLen, 1);
+    memcpy(pInfo->result->buffer, pMsg->pCont,pMsg->contLen);    
   }
   tsem_post(&pInfo->rspSem);
 }
@@ -20,17 +18,13 @@ static void *sendRequest(void *param) {
   return NULL;
 }
 
-char *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, char *pCont) {
-    
-    if (!pCont) {
-      return NULL;
-    }
-
-    int length = (int)strlen(pCont);  
-
-    if (length == 0) {
-      return NULL;
-    }
+TrpcInOut *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input) {
+  TrpcInOut *output = (TrpcInOut *)calloc(1, sizeof(TrpcInOut) * 1);
+  output->length = 0;
+  output->buffer = NULL;
+  if (input.length <= 0) {
+    return output;
+  }
 
     SetRpcCfp(pRpc, processResponse);
 
@@ -43,9 +37,9 @@ char *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, char *pCont) {
     }   
 
     SRpcMsg rpcMsg = {0};
-    rpcMsg.pCont = rpcMallocCont(length);
-    rpcMsg.contLen = length;
-    strcpy(rpcMsg.pCont, pCont);    
+    rpcMsg.pCont = rpcMallocCont(input.length);
+    rpcMsg.contLen = input.length;
+    memcpy(rpcMsg.pCont, input.buffer,input.length);    
     rpcMsg.msgType = TSDB_MSG_TYPE_SUBMIT;  // TSDB_MSG_TYPE_QUERY TSDB_MSG_TYPE_SUBMIT
     _SInfo *pInfo = (_SInfo *)calloc(1, sizeof(_SInfo) * 1);
     rpcMsg.ahandle = pInfo;
@@ -55,6 +49,7 @@ char *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, char *pCont) {
     pInfo->num = 0;
     pInfo->pMsg = &rpcMsg;
     pInfo->pRpc = pRpc;
+    pInfo->result = output;
     tsem_init(&pInfo->rspSem, 0, 0);
 
     pthread_attr_t thattr;

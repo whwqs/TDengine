@@ -75,13 +75,20 @@ namespace testform
 			}
 		}
 
-		private string requestCallback(string content)
+		private TrpcInOut requestCallback(TrpcInOut input)
 		{
-			服务端接收的最后消息 = content;
-			服务端接收消息条数++;
-			string ret = $"服务端收到第{服务端接收消息条数}条消息：" + content + "，并对消息进行处理。";
-			Task.Factory.StartNew(服务端消息打印);
-			return ret;
+			TrpcInOut output = new TrpcInOut();
+			if (input.length > 0)
+			{
+				服务端接收的最后消息 = TrpcTools.Utf8BufferPtrToString(input.buffer, input.length);
+				服务端接收消息条数++;
+				string ret = $"服务端收到第{服务端接收消息条数}条消息：" + 服务端接收的最后消息 + "，并对消息进行处理。";
+				byte[] buf = TrpcTools.StringToUtf8Buffer(ret);
+				output.length = buf.Length;
+				output.buffer = TrpcTools.BytesToIntptr(buf);
+				Task.Factory.StartNew(服务端消息打印);
+			}
+			return output;
 		}
 
 
@@ -115,7 +122,14 @@ namespace testform
 			{				
 				Stopwatch sw = new Stopwatch();
 				sw.Start();
-				string respMsg = TrpcSDK.ClientSendAndReceive(客户端rpc, serverEpSet,txtSend.Text.ToString());//如果发送的i的信息，比如：txtSend.Text+i，运行有时会报错，待解决
+				TrpcInOut input = new TrpcInOut();
+				byte[] buf = TrpcTools.StringToUtf8Buffer(txtSend.Text);
+				input.length = buf.Length;
+				input.buffer = TrpcTools.BytesToIntptr(buf);
+				IntPtr ptr = TrpcSDK.ClientSendAndReceive(客户端rpc, serverEpSet,input);//
+				TrpcInOut output = (TrpcInOut)Marshal.PtrToStructure(ptr, typeof(TrpcInOut));
+				string respMsg = TrpcTools.Utf8BufferPtrToString(output.buffer, output.length);
+				TrpcSDK.FreeTrpcInOut(ptr);
 				sw.Stop();
 				最后一次发送接收总时间 = sw.Elapsed.TotalSeconds;
 				发送接收总时间 += 最后一次发送接收总时间;

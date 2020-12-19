@@ -1,36 +1,30 @@
 #include "trpcinterface.h"
-bool         commit = 0;
+bool            commit = 0;
 int             serverDataFd = -1;
 RequestCallback callback;
 
-void serverProcessRequestMsg(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
+static void serverProcessRequestMsg(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
   if (commit) {
     if (write(serverDataFd, pMsg->pCont, pMsg->contLen) < 0) {
       tInfo("failed to write data file, reason:%s", strerror(errno));
     }
   }
-
   SRpcMsg *pTemp = calloc(1, sizeof(SRpcMsg));
-  memcpy(pTemp, pMsg, sizeof(SRpcMsg));  
+  memcpy(pTemp, pMsg, sizeof(SRpcMsg));
   pTemp->pCont = rpcMallocCont(0);
   pTemp->contLen = 0;
 
   if (callback) {
-    char *inMsg = (char *)malloc(pMsg->contLen + 1);
-
-    if (NULL != inMsg) {
-      memcpy(inMsg, pMsg->pCont, pMsg->contLen);
-      inMsg[pMsg->contLen] = '\0';
-      char *outMsg = callback(inMsg);
-      free(inMsg);
-      if (NULL != outMsg) {
-        int Length = (int)strlen(outMsg);
-        pTemp->pCont = rpcMallocCont(Length);
-        pTemp->contLen = Length;
-        strcpy(pTemp->pCont, outMsg);
-        free(outMsg);
-      }
-    }    
+    TrpcInOut input = {0, NULL};
+    if (pMsg->contLen > 0) {
+      input.length = pMsg->contLen;
+      input.buffer = calloc(pMsg->contLen, 1);
+      memcpy(input.buffer, pMsg->pCont, pMsg->contLen);
+      TrpcInOut output = callback(input);
+      pTemp->pCont = rpcMallocCont(output.length);
+      pTemp->contLen = output.length;
+      memcpy(pTemp->pCont, output.buffer, output.length);
+    }
   }
   rpcSendResponse(pTemp);
 }
