@@ -14,8 +14,9 @@ namespace TrpcServer
 			if (input.length > 0)
 			{
 				string 服务端接收的最后消息 = TrpcTools.Utf8BufferPtrToString(input.buffer, input.length);
+				Console.WriteLine(服务端接收的最后消息);
 				服务端接收消息条数++;
-				string ret = $"服务端收到第{服务端接收消息条数}条消息：" + 服务端接收的最后消息 + "，并对消息进行处理。";
+				string ret = $"服务端收到第{服务端接收消息条数}条消息：" + 服务端接收的最后消息 + "，并对消息进行处理。";				
 				byte[] buf = TrpcTools.StringToUtf8Buffer(ret);
 				output.length = buf.Length;
 				output.buffer = TrpcTools.BytesToIntptr(buf);
