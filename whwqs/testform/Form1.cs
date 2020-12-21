@@ -70,7 +70,7 @@ namespace testform
 			{
 				cxt.Post(o =>
 				{
-					txtRec1.Text = $"{Environment.NewLine}最新客户端消息是：{Environment.NewLine + 服务端接收的最后消息 + Environment.NewLine}收到消息的总条数：{Environment.NewLine + 服务端接收消息条数}";
+					txtRec1.Text = $"收到消息的总条数：{Environment.NewLine + 服务端接收消息条数}{Environment.NewLine}最新客户端消息是：{Environment.NewLine + 服务端接收的最后消息 + Environment.NewLine}";
 				}, null);
 			}
 		}
