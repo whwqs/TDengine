@@ -326,7 +326,9 @@ void tscProcessMsgFromServer(SRpcMsg *rpcMsg, SRpcEpSet *pEpSet) {
        rpcMsg->code == TSDB_CODE_VND_INVALID_VGROUP_ID ||
        rpcMsg->code == TSDB_CODE_RPC_NETWORK_UNAVAIL ||
        rpcMsg->code == TSDB_CODE_APP_NOT_READY)) {
-    tscWarn("%p it shall renew table meta, code:%s, retry:%d", pSql, tstrerror(rpcMsg->code), ++pSql->retry);
+        
+    pSql->retry++;
+    tscWarn("%p it shall renew table meta, code:%s, retry:%d", pSql, tstrerror(rpcMsg->code), pSql->retry);
 
     pSql->res.code = rpcMsg->code;  // keep the previous error code
     if (pSql->retry > pSql->maxRetry) {
@@ -1267,14 +1269,14 @@ int32_t tscBuildKillMsg(SSqlObj *pSql, SSqlInfo *pInfo) {
   return TSDB_CODE_SUCCESS;
 }
 
-// TODO update it
 int tscEstimateCreateTableMsgLength(SSqlObj *pSql, SSqlInfo *pInfo) {
   SSqlCmd *pCmd = &(pSql->cmd);
-  int32_t size = minMsgSize() + sizeof(SCMCreateTableMsg) + sizeof(SCreatedTableInfo);
+  int32_t size = minMsgSize() + sizeof(SCMCreateTableMsg) + sizeof(SCreateTableMsg);
 
   SCreateTableSQL *pCreateTableInfo = pInfo->pCreateTableInfo;
   if (pCreateTableInfo->type == TSQL_CREATE_TABLE_FROM_STABLE) {
-    size += sizeof(STagData);
+    int32_t numOfTables = (int32_t)taosArrayGetSize(pInfo->pCreateTableInfo->childTableInfo);
+    size += numOfTables * (sizeof(SCreateTableMsg) + TSDB_MAX_TAGS_LEN);
   } else {
     size += sizeof(SSchema) * (pCmd->numOfCols + pCmd->count);
   }
