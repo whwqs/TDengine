@@ -13,13 +13,13 @@ namespace TrpcServer
 			TrpcInOut output = new TrpcInOut();
 			if (input.length > 0)
 			{
-				string 服务端接收的最后消息 = TrpcTools.Utf8BufferPtrToString(input.buffer, input.length);
-				Console.WriteLine(服务端接收的最后消息);
+				string 服务端接收的最后消息 = TrpcTools.Utf8BufferPtrToString(input.buffer, input.length);				
 				服务端接收消息条数++;
 				string ret = $"服务端收到第{服务端接收消息条数}条消息：" + 服务端接收的最后消息 + "，并对消息进行处理。";				
 				byte[] buf = TrpcTools.StringToUtf8Buffer(ret);
 				output.length = buf.Length;
 				output.buffer = TrpcTools.BytesToIntptr(buf);
+				Console.WriteLine(ret);
 			}
 			return output;
 		}
@@ -31,7 +31,7 @@ namespace TrpcServer
 			//TrpcSDK.SetCompressMsgSize(0);
 			_SRpcInit rpcInit = new _SRpcInit();
 			rpcInit.connType = 0;
-			rpcInit.idleTime = 1;
+			rpcInit.idleTime = 5000;
 			rpcInit.label = "server";
 			rpcInit.localPort = 7000;
 			rpcInit.numOfThreads = 5;

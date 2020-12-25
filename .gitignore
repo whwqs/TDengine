@@ -96,3 +96,4 @@ tests/examples/JDBC/JDBCDemo/.settings/
 /whwqs/TrpcServer/bin
 /whwqs/TrpcServer/Properties/launchSettings.json
 /whwqs/testform/testform_TemporaryKey.pfx
+/whwqs/TrpcServer/server.log.0
