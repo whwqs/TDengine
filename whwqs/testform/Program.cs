@@ -1,4 +1,5 @@
-﻿using System;
+﻿using rpcCSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -13,9 +14,11 @@ namespace testform
 		[STAThread]
 		static void Main()
 		{
+			TrpcSDK.RpcInit();
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			Application.Run(new Form1());
+			TrpcSDK.RpcCleanup();
 		}
 	}
 }

@@ -92,3 +92,7 @@ tests/examples/JDBC/JDBCDemo/.settings/
 /whwqs/rpcCSharp/*.user
 /whwqs/rpcCSharp/Properties/PublishProfiles/*.user
 /whwqs/rpcCSharp/Properties/PublishProfiles/FolderProfile.pubxml
+/whwqs/testform/publish
+/whwqs/TrpcServer/bin
+/whwqs/TrpcServer/Properties/launchSettings.json
+/whwqs/testform/testform_TemporaryKey.pfx

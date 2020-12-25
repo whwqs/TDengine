@@ -26,6 +26,7 @@ static void serverProcessRequestMsg(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
       memcpy(pTemp->pCont, output.buffer, output.length);
     }
   }
+  
   rpcSendResponse(pTemp);
 }
 

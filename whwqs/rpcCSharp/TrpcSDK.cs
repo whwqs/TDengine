@@ -73,6 +73,11 @@ namespace rpcCSharp
 
 	public class TrpcSDK_WINDOWS
 	{
+		[DllImport("trpcdylib.dll", EntryPoint = "RpcInit", CallingConvention = CallingConvention.Cdecl)]
+		static extern public int RpcInit();
+
+		[DllImport("trpcdylib.dll", EntryPoint = "RpcCleanup", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void RpcCleanup();
 
 		[DllImport("trpcdylib.dll", EntryPoint = "StartServerListen", CallingConvention = CallingConvention.Cdecl)]
 		static extern public IntPtr StartServerListen(TrpcServerInit trpcServerInit);
@@ -107,6 +112,11 @@ namespace rpcCSharp
 
 	public class TrpcSDK_LINUX
 	{
+		[DllImport("libtrpcdylib.so", EntryPoint = "RpcInit", CallingConvention = CallingConvention.Cdecl)]
+		static extern public int RpcInit();
+
+		[DllImport("libtrpcdylib.so", EntryPoint = "RpcCleanup", CallingConvention = CallingConvention.Cdecl)]
+		static extern public void RpcCleanup();
 
 		[DllImport("libtrpcdylib.so", EntryPoint = "StartServerListen", CallingConvention = CallingConvention.Cdecl)]
 		static extern public IntPtr StartServerListen(TrpcServerInit trpcServerInit);
@@ -141,6 +151,36 @@ namespace rpcCSharp
 
 	public class TrpcSDK
 	{
+		static public int RpcInit()
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				return TrpcSDK_LINUX.RpcInit();
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				return TrpcSDK_WINDOWS.RpcInit();
+			}
+
+			return -9999;
+		}
+
+		static public void RpcCleanup()
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				TrpcSDK_LINUX.RpcCleanup();
+				return;
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				TrpcSDK_WINDOWS.RpcCleanup();
+				return;
+			}
+		}
+
 		static public IntPtr StartServerListen(TrpcServerInit trpcServerInit)
 		{
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))

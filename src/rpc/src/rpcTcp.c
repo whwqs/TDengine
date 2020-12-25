@@ -196,7 +196,7 @@ void taosStopTcpServer(void *handle) {
     //for break taosAcceptTcpConnection
     SOCKET   sockFd;
     pServerObj->stop = true;//set true for taosAcceptTcpConnection when accept below socket to break
-    uint32_t peerIp = taosGetIpFromFqdn("127.0.0.1");    
+    uint32_t peerIp = taosGetIpv4FromFqdn("127.0.0.1");    
     sockFd = taosOpenTcpClientSocket(peerIp, pServerObj->port, 0);    
     if (taosComparePthread(pServerObj->thread, pthread_self())) {
       pthread_detach(pthread_self());

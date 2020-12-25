@@ -1,5 +1,9 @@
 #include "trpcinterface.h"
 
+int32_t RpcInit(void) { return rpcInit(); }
+
+void RpcCleanup(void) { rpcCleanup(); }
+
 void *_RpcOpen(_SRpcInit _rpcInit) {
   SRpcInit rpcInit;
   memset(&rpcInit, 0, sizeof(rpcInit));
@@ -17,7 +21,7 @@ void *_RpcOpen(_SRpcInit _rpcInit) {
   memcpy(rpcInit.secret, _rpcInit.secret, TSDB_KEY_LEN);
   rpcInit.ckey = (char *)calloc(1, TSDB_KEY_LEN);
   tstrncpy(rpcInit.ckey, _rpcInit.ckey, TSDB_KEY_LEN);
-  rpcInit.spi = _rpcInit.spi;
+  rpcInit.spi = _rpcInit.spi - '0';
   rpcInit.encrypt = _rpcInit.encrypt;
   void *pRpc = rpcOpen(&rpcInit);
   if (pRpc == NULL) {
@@ -48,11 +52,6 @@ void SetDebug(int32_t _rpcDebugFlag) {
 }
 
 void SetCompressMsgSize(int32_t CompressMsgSize) { tsCompressMsgSize = CompressMsgSize; }
-
-void SetRpcCfp(void *param, void (*cfp)(SRpcMsg *, SRpcEpSet *)) {
-  _SRpcInfo *_pRpc = (_SRpcInfo *)param;
-  _pRpc->cfp = cfp;
-}
 
 void FreeTrpcInOut(void *param) {
   if (param) {
