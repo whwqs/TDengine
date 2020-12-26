@@ -1,11 +1,9 @@
 #include "trpcinterface.h"
 
 typedef struct {
-  int        index;
   SRpcEpSet  epSet;
   SRpcMsg *  pMsg;
   tsem_t     rspSem;
-  tsem_t *   pOverSem;
   pthread_t  thread;
   void *     pRpc;
   TrpcInOut *result;
@@ -35,12 +33,13 @@ static void *sendRequest(void *param) {
 }
 
 TrpcInOut *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input) {
+  if (NULL == input.buffer || 0 >= input.length) {
+    return NULL;
+  }
   TrpcInOut *output = (TrpcInOut *)calloc(1, sizeof(TrpcInOut) * 1);
   output->length = 0;
   output->buffer = NULL;
-  if (input.length <= 0) {
-    return output;
-  }
+  
   _SRpcInfo *_pRpc = (_SRpcInfo *)pRpc;
   _pRpc->cfp = processResponse;
   _pRpc->numOfThreads = 1;
@@ -50,17 +49,17 @@ TrpcInOut *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input
   epSet.inUse = serverEps.inUse;
   for (int i = 0; i < TSDB_MAX_REPLICA; i++) {
     epSet.port[i] = serverEps.port[i];
-    strcpy(epSet.fqdn[i], serverEps.fqdn[i]);
+    strcpy(epSet.fqdn[i], serverEps.fqdn[i]);    
   }
 
-  SRpcMsg rpcMsg = {0};
+  SRpcMsg rpcMsg;
   rpcMsg.pCont = rpcMallocCont(input.length);
   rpcMsg.contLen = input.length;
   memcpy(rpcMsg.pCont, input.buffer, input.length);
+  free(input.buffer);
   rpcMsg.msgType = TSDB_MSG_TYPE_SUBMIT;  // TSDB_MSG_TYPE_QUERY TSDB_MSG_TYPE_SUBMIT
   _SInfo *pInfo = (_SInfo *)calloc(1, sizeof(_SInfo) * 1);
   rpcMsg.ahandle = pInfo;
-  pInfo->index = 0;
   pInfo->epSet = epSet;
   pInfo->pMsg = &rpcMsg;
   pInfo->pRpc = pRpc;
@@ -72,7 +71,7 @@ TrpcInOut *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input
   pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_JOINABLE);  // PTHREAD_CREATE_JOINABLE PTHREAD_CREATE_DETACHED
   pthread_create(&pInfo->thread, &thattr, sendRequest, pInfo);
 
-  tsem_wait(&pInfo->rspSem);  //这个会傻等服务端响应
+  tsem_wait(&pInfo->rspSem);  //
 
   // struct timeval timeSecs;
   // time_t         curTime;
@@ -88,5 +87,7 @@ TrpcInOut *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input
   //}
 
   tsem_destroy(&pInfo->rspSem);
-  return pInfo->result;
+  output = pInfo->result;
+  free(pInfo);
+  return output;
 }

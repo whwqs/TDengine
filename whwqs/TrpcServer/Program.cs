@@ -25,6 +25,7 @@ namespace TrpcServer
 		}
 		static void Main(string[] args)
 		{
+			TrpcSDK.RpcInit();
 			serverCallback = requestCallback;
 			TrpcSDK.InitLog("server.log", 100000, 10);
 			TrpcSDK.SetDebug(131);
@@ -60,6 +61,7 @@ namespace TrpcServer
 					break;
 				}
 			}
+			TrpcSDK.RpcCleanup();
 		}
 	}
 }

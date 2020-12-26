@@ -141,15 +141,18 @@ namespace testform
 					input.length = buf.Length;
 					input.buffer = TrpcTools.BytesToIntptr(buf);
 					IntPtr ptr = TrpcSDK.ClientSendAndReceive(客户端rpc, serverEpSet, input);//
-					TrpcInOut output = (TrpcInOut)Marshal.PtrToStructure(ptr, typeof(TrpcInOut));
-					string respMsg = TrpcTools.Utf8BufferPtrToString(output.buffer, output.length);
-					TrpcSDK.FreeTrpcInOut(ptr);
-					sw.Stop();
-					最后一次发送接收总时间 = sw.Elapsed.TotalSeconds;
-					发送接收总时间 += 最后一次发送接收总时间;
-					客户端接收消息条数++;
-					客户端接收的最后消息 = respMsg;
-					客户端消息打印();
+					if (ptr != IntPtr.Zero)
+					{
+						TrpcInOut output = (TrpcInOut)Marshal.PtrToStructure(ptr, typeof(TrpcInOut));
+						string respMsg = TrpcTools.Utf8BufferPtrToString(output.buffer, output.length);
+						TrpcSDK.FreeTrpcInOut(ptr);
+						sw.Stop();
+						最后一次发送接收总时间 = sw.Elapsed.TotalSeconds;
+						发送接收总时间 += 最后一次发送接收总时间;
+						客户端接收消息条数++;
+						客户端接收的最后消息 = respMsg;
+						客户端消息打印();
+					}
 				}				
 			});			
 		}

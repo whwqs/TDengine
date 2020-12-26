@@ -11,7 +11,7 @@ static void serverProcessRequestMsg(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
   }
   SRpcMsg *pTemp = calloc(1, sizeof(SRpcMsg));
   memcpy(pTemp, pMsg, sizeof(SRpcMsg));
-  pTemp->pCont = rpcMallocCont(0);
+  pTemp->pCont = NULL;
   pTemp->contLen = 0;
 
   if (callback) {
@@ -21,13 +21,15 @@ static void serverProcessRequestMsg(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
       input.buffer = calloc(pMsg->contLen, 1);
       memcpy(input.buffer, pMsg->pCont, pMsg->contLen);
       TrpcInOut output = callback(input);
+      free(input.buffer);
       pTemp->pCont = rpcMallocCont(output.length);
       pTemp->contLen = output.length;
-      memcpy(pTemp->pCont, output.buffer, output.length);
+      memcpy(pTemp->pCont, output.buffer, output.length);      
+      free(output.buffer);      
     }
   }
-  
-  rpcSendResponse(pTemp);
+  rpcFreeCont(pMsg->pCont);
+  rpcSendResponse(pTemp);  
 }
 
 void *StartServerListen(TrpcServerInit initData) {
