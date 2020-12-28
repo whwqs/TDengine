@@ -21,7 +21,7 @@ void *_RpcOpen(_SRpcInit _rpcInit) {
   memcpy(rpcInit.secret, _rpcInit.secret, TSDB_KEY_LEN);
   rpcInit.ckey = (char *)calloc(1, TSDB_KEY_LEN);
   tstrncpy(rpcInit.ckey, _rpcInit.ckey, TSDB_KEY_LEN);
-  rpcInit.spi = _rpcInit.spi - '0';
+  rpcInit.spi = _rpcInit.spi ;
   rpcInit.encrypt = _rpcInit.encrypt;
   void *pRpc = rpcOpen(&rpcInit);
   if (pRpc == NULL) {

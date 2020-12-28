@@ -62,7 +62,7 @@ namespace rpcCSharp
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 24)]
 		public string user;
 		[MarshalAs(UnmanagedType.U1)]
-		public char spi;
+		public byte spi;
 		[MarshalAs(UnmanagedType.U1)]
 		public char encrypt;
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]

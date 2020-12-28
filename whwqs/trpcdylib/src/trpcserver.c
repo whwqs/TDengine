@@ -8,11 +8,7 @@ static void serverProcessRequestMsg(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
     if (write(serverDataFd, pMsg->pCont, pMsg->contLen) < 0) {
       tInfo("failed to write data file, reason:%s", strerror(errno));
     }
-  }
-  SRpcMsg *pTemp = calloc(1, sizeof(SRpcMsg));
-  memcpy(pTemp, pMsg, sizeof(SRpcMsg));
-  pTemp->pCont = NULL;
-  pTemp->contLen = 0;
+  }  
 
   if (callback) {
     TrpcInOut input = {0, NULL};
@@ -22,14 +18,21 @@ static void serverProcessRequestMsg(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
       memcpy(input.buffer, pMsg->pCont, pMsg->contLen);
       TrpcInOut output = callback(input);
       free(input.buffer);
-      pTemp->pCont = rpcMallocCont(output.length);
-      pTemp->contLen = output.length;
-      memcpy(pTemp->pCont, output.buffer, output.length);      
+      rpcFreeCont(pMsg->pCont);
+      pMsg->pCont = rpcMallocCont(output.length);
+      pMsg->contLen = output.length;
+      memcpy(pMsg->pCont, output.buffer, output.length);      
       free(output.buffer);      
+    } else {
+      rpcFreeCont(pMsg->pCont);
+      pMsg->pCont = NULL;
     }
+  } else {
+    rpcFreeCont(pMsg->pCont);
+    pMsg->pCont = NULL;
   }
-  rpcFreeCont(pMsg->pCont);
-  rpcSendResponse(pTemp);  
+  rpcSendResponse(pMsg);  
+  
 }
 
 void *StartServerListen(TrpcServerInit initData) {

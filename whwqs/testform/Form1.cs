@@ -169,7 +169,7 @@ namespace testform
 			rpcInit.numOfThreads = 1;
 			rpcInit.secret = "####";
 			rpcInit.sessions = 1;
-			rpcInit.spi = '0';
+			rpcInit.spi = 0;
 			rpcInit.user = "wqs";
 			客户端rpc = TrpcSDK._RpcOpen(rpcInit);
 			if (客户端rpc != IntPtr.Zero)
