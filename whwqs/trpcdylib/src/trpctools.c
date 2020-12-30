@@ -52,13 +52,3 @@ void SetDebug(int32_t _rpcDebugFlag) {
 }
 
 void SetCompressMsgSize(int32_t CompressMsgSize) { tsCompressMsgSize = CompressMsgSize; }
-
-void FreeTrpcInOut(void *param) {
-  if (param) {
-    TrpcInOut *p = (TrpcInOut *)param;
-    if (p->length > 0) {
-      free(p->buffer);
-    }
-    free(p);
-  }
-}

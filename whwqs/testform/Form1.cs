@@ -18,6 +18,7 @@ namespace testform
 	{
 		SynchronizationContext cxt;
 		RequestCallback serverCallback;
+		ResponseCallback clientCallback;
 		IntPtr 客户端rpc;
 		IntPtr 服务端rpc;
 		public Form1()
@@ -30,6 +31,7 @@ namespace testform
 		{
 			cxt = SynchronizationContext.Current;
 			serverCallback = requestCallback;
+			clientCallback = responseCallback;
 		}
 
 		private void 开启服务监听_Click(object sender, EventArgs e)
@@ -43,7 +45,7 @@ namespace testform
 			rpcInit.label = "server";
 			rpcInit.localPort = 7000;
 			rpcInit.numOfThreads = 1;
-			rpcInit.sessions = 100;
+			rpcInit.sessions = 10000;
 			TrpcServerInit trpcServerInit = new TrpcServerInit();
 			trpcServerInit.commit = false;
 			trpcServerInit.dataFile = "server.data";
@@ -103,6 +105,11 @@ namespace testform
 			return output;
 		}
 
+		private void responseCallback(TrpcInOut input)
+		{
+			客户端接收的最后消息 = TrpcTools.Utf8BufferPtrToString(input.buffer, input.length);			
+		}
+
 
 		int 客户端接收消息条数 = 0;
 		string 客户端接收的最后消息 = "";
@@ -140,19 +147,12 @@ namespace testform
 					byte[] buf = TrpcTools.StringToUtf8Buffer("" + i + " " + txtSend.Text);
 					input.length = buf.Length;
 					input.buffer = TrpcTools.BytesToIntptr(buf);
-					IntPtr ptr = TrpcSDK.ClientSendAndReceive(客户端rpc, serverEpSet, input);//
-					if (ptr != IntPtr.Zero)
-					{
-						TrpcInOut output = (TrpcInOut)Marshal.PtrToStructure(ptr, typeof(TrpcInOut));
-						string respMsg = TrpcTools.Utf8BufferPtrToString(output.buffer, output.length);
-						TrpcSDK.FreeTrpcInOut(ptr);
-						sw.Stop();
-						最后一次发送接收总时间 = sw.Elapsed.TotalSeconds;
-						发送接收总时间 += 最后一次发送接收总时间;
-						客户端接收消息条数++;
-						客户端接收的最后消息 = respMsg;
-						客户端消息打印();
-					}
+					TrpcSDK.ClientSendAndReceive(客户端rpc, serverEpSet, input, clientCallback);//
+					sw.Stop();
+					最后一次发送接收总时间 = sw.Elapsed.TotalSeconds;
+					发送接收总时间 += 最后一次发送接收总时间;
+					客户端接收消息条数++;			 
+					客户端消息打印();
 				}				
 			});			
 		}

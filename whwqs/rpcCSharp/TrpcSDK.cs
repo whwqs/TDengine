@@ -18,6 +18,9 @@ namespace rpcCSharp
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	public delegate TrpcInOut RequestCallback(TrpcInOut input);
 
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+	public delegate void ResponseCallback(TrpcInOut input);
+
 	[StructLayout(LayoutKind.Sequential)]
 	public struct TrpcServerInit
 	{
@@ -83,7 +86,7 @@ namespace rpcCSharp
 		static extern public IntPtr StartServerListen(TrpcServerInit trpcServerInit);
 
 		[DllImport("trpcdylib.dll", EntryPoint = "ClientSendAndReceive", CallingConvention = CallingConvention.Cdecl)]
-		static extern public IntPtr ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet, TrpcInOut input);
+		static extern public void ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet, TrpcInOut input, ResponseCallback responseCallback);
 
 		[DllImport("trpcdylib.dll", EntryPoint = "_RpcOpen", CallingConvention = CallingConvention.Cdecl)]
 		static extern public IntPtr _RpcOpen(_SRpcInit rpcInit);
@@ -104,10 +107,7 @@ namespace rpcCSharp
 		static extern public void ResetLog();
 
 		[DllImport("trpcdylib.dll", EntryPoint = "SetCompressMsgSize", CallingConvention = CallingConvention.Cdecl)]
-		static extern public void SetCompressMsgSize(int CompressMsgSize);
-
-		[DllImport("trpcdylib.dll", EntryPoint = "FreeTrpcInOut", CallingConvention = CallingConvention.Cdecl)]
-		static extern public void FreeTrpcInOut(IntPtr param);
+		static extern public void SetCompressMsgSize(int CompressMsgSize);		
 	}
 
 	public class TrpcSDK_LINUX
@@ -122,7 +122,7 @@ namespace rpcCSharp
 		static extern public IntPtr StartServerListen(TrpcServerInit trpcServerInit);
 
 		[DllImport("libtrpcdylib.so", EntryPoint = "ClientSendAndReceive", CallingConvention = CallingConvention.Cdecl)]
-		static extern public IntPtr ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet, TrpcInOut input);
+		static extern public void ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet, TrpcInOut input, ResponseCallback responseCallback);
 
 		[DllImport("libtrpcdylib.so", EntryPoint = "_RpcOpen", CallingConvention = CallingConvention.Cdecl)]
 		static extern public IntPtr _RpcOpen(_SRpcInit rpcInit);
@@ -144,9 +144,7 @@ namespace rpcCSharp
 
 		[DllImport("libtrpcdylib.so", EntryPoint = "SetCompressMsgSize", CallingConvention = CallingConvention.Cdecl)]
 		static extern public void SetCompressMsgSize(int CompressMsgSize);
-
-		[DllImport("libtrpcdylib.so", EntryPoint = "FreeTrpcInOut", CallingConvention = CallingConvention.Cdecl)]
-		static extern public void FreeTrpcInOut(IntPtr param);
+		
 	}
 
 	public class TrpcSDK
@@ -196,19 +194,19 @@ namespace rpcCSharp
 			return IntPtr.Zero;
 		}
 
-		static public IntPtr ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet, TrpcInOut input)
+		static public void ClientSendAndReceive(IntPtr pRpc, TrpcEpSet epSet, TrpcInOut input, ResponseCallback responseCallback)
 		{
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 			{
-				return TrpcSDK_LINUX.ClientSendAndReceive(pRpc, epSet, input);
+				TrpcSDK_LINUX.ClientSendAndReceive(pRpc, epSet, input,responseCallback);
+				return;
 			}
 
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
-				return TrpcSDK_WINDOWS.ClientSendAndReceive(pRpc, epSet, input);
+				TrpcSDK_WINDOWS.ClientSendAndReceive(pRpc, epSet, input,responseCallback);
+				return;
 			}
-
-			return IntPtr.Zero;
 		}
 
 		static public IntPtr _RpcOpen(_SRpcInit rpcInit)
@@ -315,20 +313,6 @@ namespace rpcCSharp
 				return;
 			}
 		}
-
-		public static void FreeTrpcInOut(IntPtr param)
-		{
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-			{
-				TrpcSDK_LINUX.FreeTrpcInOut(param);
-				return;
-			}
-
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			{
-				TrpcSDK_WINDOWS.FreeTrpcInOut(param);
-				return;
-			}
-		}
+		
 	}
 }

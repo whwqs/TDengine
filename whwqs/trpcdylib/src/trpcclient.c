@@ -9,19 +9,21 @@ typedef struct {
   TrpcInOut *result;
 } _SInfo;
 
+char *      timeoutMsg = "server timeout";
+
 static void processResponse(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
   _SInfo *pInfo = (_SInfo *)pMsg->ahandle;
   if (pEpSet) pInfo->epSet = *pEpSet;
-  if (pMsg->code != 0) {
-    char *  msg = "server timeout";
-    int32_t len = (int32_t)strlen(msg);
+  if (pMsg->code != 0) {    
+    int32_t len = (int32_t)strlen(timeoutMsg);
     pInfo->result->length = len;
     pInfo->result->buffer = calloc(len, 1);
-    memcpy(pInfo->result->buffer, msg, len);
+    memcpy(pInfo->result->buffer, timeoutMsg, len);
   } else if (NULL != pMsg->pCont && pMsg->contLen > 0) {
     pInfo->result->length = pMsg->contLen;
     pInfo->result->buffer = calloc(pMsg->contLen, 1);
     memcpy(pInfo->result->buffer, pMsg->pCont, pMsg->contLen);
+    rpcFreeCont(pMsg->pCont);
   }
   tsem_post(&pInfo->rspSem);
 }
@@ -32,13 +34,13 @@ static void *sendRequest(void *param) {
   return NULL;
 }
 
-TrpcInOut *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input) {
+void ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input, ResponseCallback cbk) {
   if (NULL == input.buffer || 0 >= input.length) {
-    return NULL;
+    return ;
   }
-  TrpcInOut *output = (TrpcInOut *)calloc(1, sizeof(TrpcInOut) * 1);
-  output->length = 0;
-  output->buffer = NULL;
+  TrpcInOut output;
+  output.length = 0;
+  output.buffer = NULL;
   
   _SRpcInfo *_pRpc = (_SRpcInfo *)pRpc;
   _pRpc->cfp = processResponse;
@@ -58,20 +60,20 @@ TrpcInOut *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input
   memcpy(rpcMsg.pCont, input.buffer, input.length);
   free(input.buffer);
   rpcMsg.msgType = TSDB_MSG_TYPE_SUBMIT;  // TSDB_MSG_TYPE_QUERY TSDB_MSG_TYPE_SUBMIT
-  _SInfo *pInfo = (_SInfo *)calloc(1, sizeof(_SInfo) * 1);
-  rpcMsg.ahandle = pInfo;
-  pInfo->epSet = epSet;
-  pInfo->pMsg = &rpcMsg;
-  pInfo->pRpc = pRpc;
-  pInfo->result = output;
-  tsem_init(&pInfo->rspSem, 0, 0);
+  _SInfo pInfo;
+  rpcMsg.ahandle = &pInfo;
+  pInfo.epSet = epSet;
+  pInfo.pMsg = &rpcMsg;
+  pInfo.pRpc = pRpc;
+  pInfo.result = &output;
+  tsem_init(&pInfo.rspSem, 0, 0);
 
   pthread_attr_t thattr;
   pthread_attr_init(&thattr);
   pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_JOINABLE);  // PTHREAD_CREATE_JOINABLE PTHREAD_CREATE_DETACHED
-  pthread_create(&pInfo->thread, &thattr, sendRequest, pInfo);
+  pthread_create(&pInfo.thread, &thattr, sendRequest, &pInfo);
 
-  tsem_wait(&pInfo->rspSem);  //
+  tsem_wait(&pInfo.rspSem);  //  
 
   // struct timeval timeSecs;
   // time_t         curTime;
@@ -86,8 +88,13 @@ TrpcInOut *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input
   //  tInfo("sem_timedwait ³¬Ê±:%s", strerror(errno));
   //}
 
-  tsem_destroy(&pInfo->rspSem);
-  output = pInfo->result;
-  free(pInfo);
-  return output;
+  tsem_destroy(&pInfo.rspSem); 
+  pthread_join(pInfo.thread, NULL);
+  //rpcFreeCont(rpcMsg.pCont);
+  cbk(output);
+  if (output.buffer) {
+    free(output.buffer);
+    output.buffer = NULL;
+  }
+  
 }

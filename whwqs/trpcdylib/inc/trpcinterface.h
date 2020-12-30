@@ -74,7 +74,9 @@ typedef struct {
 
 } _SRpcInit;
 
-typedef TrpcInOut (*RequestCallback)(TrpcInOut pContent);
+typedef TrpcInOut (*RequestCallback)(TrpcInOut input);
+
+typedef void (*ResponseCallback)(TrpcInOut input);
 
 typedef struct {
   bool         commit;
@@ -97,14 +99,11 @@ DLLAPI void RpcCleanup(void);
 
 DLLAPI void *StartServerListen(TrpcServerInit initData);
 
-DLLAPI TrpcInOut *ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut pCont);
+DLLAPI void ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input, ResponseCallback cbk);
 
 DLLAPI void *_RpcOpen(_SRpcInit rpcInit);
 
 DLLAPI void _RpcClose(void *param);
-
-DLLAPI void FreeTrpcInOut(void *param);
-
 DLLAPI int32_t InitLog(char *logName, int32_t numOfLogLines, int32_t maxFiles);
 DLLAPI void    CloseLog();
 DLLAPI void    ResetLog();
