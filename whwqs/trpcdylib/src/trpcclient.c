@@ -9,7 +9,7 @@ typedef struct {
   TrpcInOut *result;
 } _SInfo;
 
-char *      timeoutMsg = "server timeout";
+char *      timeoutMsg = "server error";
 
 static void processResponse(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
   _SInfo *pInfo = (_SInfo *)pMsg->ahandle;
@@ -72,7 +72,7 @@ void ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input, Resp
   pthread_attr_init(&thattr);
   pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_JOINABLE);  // PTHREAD_CREATE_JOINABLE PTHREAD_CREATE_DETACHED
   pthread_create(&pInfo.thread, &thattr, sendRequest, &pInfo);
-
+  pthread_attr_destroy(&thattr);
   tsem_wait(&pInfo.rspSem);  //  
 
   // struct timeval timeSecs;
@@ -90,7 +90,6 @@ void ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input, Resp
 
   tsem_destroy(&pInfo.rspSem); 
   pthread_join(pInfo.thread, NULL);
-  //rpcFreeCont(rpcMsg.pCont);
   cbk(output);
   if (output.buffer) {
     free(output.buffer);
