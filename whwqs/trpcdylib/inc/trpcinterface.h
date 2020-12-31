@@ -93,6 +93,8 @@ typedef struct {
   //[TSDB_MAX_REPLICA][TSDB_FQDN_LEN];
 } TrpcEpSet;
 
+int SemTimedWait(tsem_t sem, long timeout);
+
 DLLAPI int32_t RpcInit(void);
 
 DLLAPI void RpcCleanup(void);

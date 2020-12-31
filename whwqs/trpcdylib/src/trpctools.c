@@ -52,3 +52,19 @@ void SetDebug(int32_t _rpcDebugFlag) {
 }
 
 void SetCompressMsgSize(int32_t CompressMsgSize) { tsCompressMsgSize = CompressMsgSize; }
+
+int SemTimedWait(tsem_t sem, long timeout) {
+   struct timeval timeSecs;
+   time_t         curTime;
+   gettimeofday(&timeSecs, NULL);
+   curTime = timeSecs.tv_sec;
+   struct timespec ts;
+   ts.tv_sec = curTime ;
+   ts.tv_nsec = timeout;//timeout纳秒后超时
+   sem_timedwait(&sem, &ts);  //
+   
+   if (ETIMEDOUT == errno) {
+     return 1;//超时退出
+  }
+   return 0;//post退出
+}

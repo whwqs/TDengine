@@ -56,6 +56,10 @@ void ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input, Resp
 
   SRpcMsg rpcMsg;
   rpcMsg.pCont = rpcMallocCont(input.length);
+  if (NULL == rpcMsg.pCont) {
+    tError("failed to allocate memory");
+    return;
+  }
   rpcMsg.contLen = input.length;
   memcpy(rpcMsg.pCont, input.buffer, input.length);
   free(input.buffer);
@@ -74,19 +78,6 @@ void ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input, Resp
   pthread_create(&pInfo.thread, &thattr, sendRequest, &pInfo);
   pthread_attr_destroy(&thattr);
   tsem_wait(&pInfo.rspSem);  //  
-
-  // struct timeval timeSecs;
-  // time_t         curTime;
-  // gettimeofday(&timeSecs, NULL);
-  // curTime = timeSecs.tv_sec;
-  // struct timespec ts;
-  // ts.tv_sec = curTime + timeout;//服务端无响应timeout秒后认为超时
-  // ts.tv_nsec = 0;
-  // sem_timedwait(&pInfo->rspSem, &ts);//
-
-  // if (ETIMEDOUT == errno) {
-  //  tInfo("sem_timedwait 超时:%s", strerror(errno));
-  //}
 
   tsem_destroy(&pInfo.rspSem); 
   pthread_join(pInfo.thread, NULL);

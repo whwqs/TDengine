@@ -20,8 +20,13 @@ static void serverProcessRequestMsg(SRpcMsg *pMsg, SRpcEpSet *pEpSet) {
       free(input.buffer);
       rpcFreeCont(pMsg->pCont);
       pMsg->pCont = rpcMallocCont(output.length);
-      pMsg->contLen = output.length;
-      memcpy(pMsg->pCont, output.buffer, output.length);      
+      if (NULL == pMsg->pCont) {
+        tError("failed to allocate memory");
+        pMsg->contLen = 0;
+      } else {
+        pMsg->contLen = output.length;
+        memcpy(pMsg->pCont, output.buffer, output.length);    
+      }        
       free(output.buffer);      
     } else {
       rpcFreeCont(pMsg->pCont);
