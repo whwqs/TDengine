@@ -327,7 +327,7 @@ TAOS_RES* taos_query_c(TAOS *taos, const char *sqlstr, uint32_t sqlLen, int64_t*
     return NULL;
   }
 
-  nPrintTsc(sqlstr);
+  nPrintTsc("%s", sqlstr);
 
   SSqlObj* pSql = calloc(1, sizeof(SSqlObj));
   if (pSql == NULL) {
@@ -709,7 +709,7 @@ static void tscKillSTableQuery(SSqlObj *pSql) {
       pSubObj->rpcRid = -1;
     }
 
-    tscQueueAsyncRes(pSubObj);
+    tscAsyncResultOnError(pSubObj);
     taosReleaseRef(tscObjRef, pSubObj->self);
   }
 
@@ -745,7 +745,7 @@ void taos_stop_query(TAOS_RES *res) {
         pSql->rpcRid = -1;
       }
 
-      tscQueueAsyncRes(pSql);
+      tscAsyncResultOnError(pSql);
     }
   }
 
@@ -788,16 +788,32 @@ int taos_print_row(char *str, TAOS_ROW row, TAOS_FIELD *fields, int num_fields) 
         len += sprintf(str + len, "%d", *((int8_t *)row[i]));
         break;
 
+      case TSDB_DATA_TYPE_UTINYINT:
+        len += sprintf(str + len, "%u", *((uint8_t *)row[i]));
+        break;
+
       case TSDB_DATA_TYPE_SMALLINT:
         len += sprintf(str + len, "%d", *((int16_t *)row[i]));
+        break;
+
+      case TSDB_DATA_TYPE_USMALLINT:
+        len += sprintf(str + len, "%u", *((uint16_t *)row[i]));
         break;
 
       case TSDB_DATA_TYPE_INT:
         len += sprintf(str + len, "%d", *((int32_t *)row[i]));
         break;
 
+      case TSDB_DATA_TYPE_UINT:
+        len += sprintf(str + len, "%u", *((uint32_t *)row[i]));
+        break;
+
       case TSDB_DATA_TYPE_BIGINT:
         len += sprintf(str + len, "%" PRId64, *((int64_t *)row[i]));
+        break;
+
+      case TSDB_DATA_TYPE_UBIGINT:
+        len += sprintf(str + len, "%" PRIu64, *((uint64_t *)row[i]));
         break;
 
       case TSDB_DATA_TYPE_FLOAT: {
@@ -909,7 +925,7 @@ int taos_validate_sql(TAOS *taos, const char *sql) {
 
 static int tscParseTblNameList(SSqlObj *pSql, const char *tblNameList, int32_t tblListLen) {
   // must before clean the sqlcmd object
-  tscResetSqlCmdObj(&pSql->cmd, false);
+  tscResetSqlCmdObj(&pSql->cmd);
 
   SSqlCmd *pCmd = &pSql->cmd;
 
