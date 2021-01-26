@@ -13,7 +13,7 @@ using System.Windows.Forms;
 using rpcCSharp;
 
 namespace testform
-{	
+{
 	public partial class Form1 : Form
 	{
 		SynchronizationContext cxt;
@@ -21,6 +21,7 @@ namespace testform
 		ResponseCallback clientCallback;
 		IntPtr 客户端rpc;
 		IntPtr 服务端rpc;
+		private static object 客户端rpc锁 = new object();
 		public Form1()
 		{
 			InitializeComponent();
@@ -58,7 +59,7 @@ namespace testform
 			}
 			else
 			{
-				lbl服务监听状态.Text = "服务端开启监听失败" ;
+				lbl服务监听状态.Text = "服务端开启监听失败";
 			}
 		}
 
@@ -107,21 +108,27 @@ namespace testform
 
 		private void responseCallback(TrpcInOut input)
 		{
-			客户端接收的最后消息 = TrpcTools.Utf8BufferPtrToString(input.buffer, input.length);			
+			客户端接收的最后消息 = TrpcTools.Utf8BufferPtrToString(input.buffer, input.length);
 		}
 
 
 		int 客户端接收消息条数 = 0;
 		string 客户端接收的最后消息 = "";
 		double 发送接收总时间 = 0;
-		double 最后一次发送接收总时间 = 0;		
+		double 最后一次发送接收总时间 = 0;
 
 		private void 客户端发送并接收_Click(object sender, EventArgs e)
-		{	
+		{
+			if (客户端rpc == IntPtr.Zero)
+			{
+				MessageBox.Show("请先开启客户端");
+				return;
+			}
+
 			客户端接收消息条数 = 0;
 			客户端接收的最后消息 = "";
 			发送接收总时间 = 0;
-			最后一次发送接收总时间 = 0;			
+			最后一次发送接收总时间 = 0;
 			txtRec2.Text = "";
 			Application.DoEvents();
 
@@ -129,7 +136,7 @@ namespace testform
 			TrpcSDK.SetDebug(131);
 			//TrpcSDK.SetCompressMsgSize(0);
 			TrpcEpSet serverEpSet = new TrpcEpSet();
-			serverEpSet.port = new ushort[] { 7000,0,0,0,0 };
+			serverEpSet.port = new ushort[] { 7000, 0, 0, 0, 0 };
 			serverEpSet.fqdn = new IntPtr[5] {  Marshal.StringToHGlobalAnsi(txtServerIp.Text),  Marshal.StringToHGlobalAnsi(""),
 				 Marshal.StringToHGlobalAnsi(""),  Marshal.StringToHGlobalAnsi(""),
 				 Marshal.StringToHGlobalAnsi("") };
@@ -141,6 +148,7 @@ namespace testform
 			{
 				for (int i = 1; i <= n; i++)
 				{
+					if (客户端rpc == IntPtr.Zero) break;
 					Stopwatch sw = new Stopwatch();
 					sw.Start();
 					TrpcInOut input = new TrpcInOut();
@@ -151,10 +159,11 @@ namespace testform
 					sw.Stop();
 					最后一次发送接收总时间 = sw.Elapsed.TotalSeconds;
 					发送接收总时间 += 最后一次发送接收总时间;
-					客户端接收消息条数++;			 
+					客户端接收消息条数++;
 					客户端消息打印();
-				}				
-			});			
+				}
+			});
+
 		}
 
 		private void 创建客户端rpc连接_Click(object sender, EventArgs e)

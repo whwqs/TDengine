@@ -35,7 +35,7 @@ static void *sendRequest(void *param) {
 }
 
 void ClientSendAndReceive(void *pRpc, TrpcEpSet serverEps, TrpcInOut input, ResponseCallback cbk) {
-  if (NULL == input.buffer || 0 >= input.length) {
+  if (NULL == input.buffer || 0 >= input.length || !pRpc) {
     return ;
   }
   TrpcInOut output;
