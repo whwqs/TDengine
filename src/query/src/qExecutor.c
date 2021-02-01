@@ -1398,13 +1398,13 @@ static int32_t doTSJoinFilter(SQueryRuntimeEnv *pRuntimeEnv, int32_t offset) {
     if (key < elem.ts) {
       return TS_JOIN_TS_NOT_EQUALS;
     } else if (key > elem.ts) {
-      assert(false);
+      longjmp(pRuntimeEnv->env, TSDB_CODE_QRY_INCONSISTAN);
     }
   } else {
     if (key > elem.ts) {
       return TS_JOIN_TS_NOT_EQUALS;
     } else if (key < elem.ts) {
-      assert(false);
+      longjmp(pRuntimeEnv->env, TSDB_CODE_QRY_INCONSISTAN);
     }
   }
 
@@ -3827,6 +3827,11 @@ void scanOneTableDataBlocks(SQueryRuntimeEnv *pRuntimeEnv, TSKEY start) {
     pRuntimeEnv->windowResInfo.curIndex = qstatus.windowIndex;
     setQueryStatus(pQuery, QUERY_NOT_COMPLETED);
     pRuntimeEnv->scanFlag = REPEAT_SCAN;
+
+    if (pRuntimeEnv->pTsBuf) {
+      bool ret = tsBufNextPos(pRuntimeEnv->pTsBuf);
+      assert(ret);
+    }
 
     qDebug("QInfo:%p start to repeat scan data blocks due to query func required, qrange:%"PRId64"-%"PRId64, pQInfo,
         cond.twindow.skey, cond.twindow.ekey);
@@ -7725,15 +7730,15 @@ static int64_t getQuerySupportBufSize(size_t numOfTables) {
 
 int32_t checkForQueryBuf(size_t numOfTables) {
   int64_t t = getQuerySupportBufSize(numOfTables);
-  if (tsQueryBufferSize < 0) {
+  if (tsQueryBufferSizeBytes < 0) {
     return TSDB_CODE_SUCCESS;
-  } else if (tsQueryBufferSize > 0) {
+  } else if (tsQueryBufferSizeBytes > 0) {
 
     while(1) {
-      int64_t s = tsQueryBufferSize;
+      int64_t s = tsQueryBufferSizeBytes;
       int64_t remain = s - t;
       if (remain >= 0) {
-        if (atomic_val_compare_exchange_64(&tsQueryBufferSize, s, remain) == s) {
+        if (atomic_val_compare_exchange_64(&tsQueryBufferSizeBytes, s, remain) == s) {
           return TSDB_CODE_SUCCESS;
         }
       } else {
@@ -7747,14 +7752,14 @@ int32_t checkForQueryBuf(size_t numOfTables) {
 }
 
 void releaseQueryBuf(size_t numOfTables) {
-  if (tsQueryBufferSize <= 0) {
+  if (tsQueryBufferSizeBytes < 0) {
     return;
   }
 
   int64_t t = getQuerySupportBufSize(numOfTables);
 
   // restore value is not enough buffer available
-  atomic_add_fetch_64(&tsQueryBufferSize, t);
+  atomic_add_fetch_64(&tsQueryBufferSizeBytes, t);
 }
 
 void* qGetResultRetrieveMsg(qinfo_t qinfo) {

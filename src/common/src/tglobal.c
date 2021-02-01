@@ -105,6 +105,7 @@ int64_t tsMaxRetentWindow = 24 * 3600L;  // maximum time window tolerance
 // 0  no query allowed, queries are disabled
 // positive value (in MB)
 int32_t tsQueryBufferSize = -1;
+int64_t tsQueryBufferSizeBytes = -1;
 
 // in retrieve blocking model, the retrieve threads will wait for the completion of the query processing.
 int32_t tsRetrieveBlockingModel = 0;
@@ -137,7 +138,7 @@ int32_t tsTableIncStepPerVnode = TSDB_TABLES_STEP;
 int8_t  tsEnableBalance = 1;
 int8_t  tsAlternativeRole = 0;
 int32_t tsBalanceInterval = 300;           // seconds
-int32_t tsOfflineThreshold = 86400 * 100;  // seconds 10days
+int32_t tsOfflineThreshold = 86400 * 100;  // seconds 100 days
 int32_t tsMnodeEqualVnodeNum = 4;
 int8_t  tsEnableFlowCtrl = 1;
 int8_t  tsEnableSlaveQuery = 1;
@@ -283,7 +284,7 @@ bool taosCfgDynamicOptions(char *msg) {
     int32_t cfgLen = (int32_t)strlen(cfg->option);
     if (cfgLen != olen) continue;
     if (strncasecmp(option, cfg->option, olen) != 0) continue;
-    if (cfg->valType != TAOS_CFG_VTYPE_INT32) {
+    if (cfg->valType == TAOS_CFG_VTYPE_INT32) {
       *((int32_t *)cfg->ptr) = vint;
     } else {
       *((int8_t *)cfg->ptr) = (int8_t)vint;
@@ -550,7 +551,7 @@ static void doInitGlobalConfig(void) {
   cfg.valType = TAOS_CFG_VTYPE_INT32;
   cfg.cfgType = TSDB_CFG_CTYPE_B_CONFIG | TSDB_CFG_CTYPE_B_SHOW;
   cfg.minValue = 3;
-  cfg.maxValue = 7200000;
+  cfg.maxValue = 86400 * 365;
   cfg.ptrLength = 0;
   cfg.unitType = TAOS_CFG_UTYPE_SECOND;
   taosInitConfigOption(cfg);
@@ -1487,6 +1488,10 @@ int32_t taosCheckGlobalCfg() {
   tsDnodeDnodePort = tsServerPort + TSDB_PORT_DNODEDNODE;   // udp/tcp
   tsSyncPort = tsServerPort + TSDB_PORT_SYNC;
   tsHttpPort = tsServerPort + TSDB_PORT_HTTP;
+
+  if (tsQueryBufferSize >= 0) {
+    tsQueryBufferSizeBytes = tsQueryBufferSize * 1048576UL;
+  }
 
   taosPrintGlobalCfg();
 
