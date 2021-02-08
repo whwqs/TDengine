@@ -39,7 +39,7 @@ namespace testform
 		{
 			TrpcSDK.InitLog("server.log", 100000, 10);
 			TrpcSDK.SetDebug(131);
-			//TrpcSDK.SetCompressMsgSize(0);
+			TrpcSDK.SetCompressMsgSize(10);
 			_SRpcInit rpcInit = new _SRpcInit();
 			rpcInit.connType = 0;
 			rpcInit.idleTime = 5000;
@@ -134,7 +134,7 @@ namespace testform
 
 			TrpcSDK.InitLog("c1ient.log", 100000, 10);
 			TrpcSDK.SetDebug(131);
-			//TrpcSDK.SetCompressMsgSize(0);
+			TrpcSDK.SetCompressMsgSize(10);
 			TrpcEpSet serverEpSet = new TrpcEpSet();
 			serverEpSet.port = new ushort[] { 7000, 0, 0, 0, 0 };
 			serverEpSet.fqdn = new IntPtr[5] {  Marshal.StringToHGlobalAnsi(txtServerIp.Text),  Marshal.StringToHGlobalAnsi(""),
