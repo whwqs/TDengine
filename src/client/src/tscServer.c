@@ -609,7 +609,7 @@ static int32_t tscEstimateQueryMsgSize(SSqlObj *pSql, int32_t clauseIndex) {
   }
 
   return MIN_QUERY_MSG_PKT_SIZE + minMsgSize() + sizeof(SQueryTableMsg) + srcColListSize + exprSize + tsBufSize +
-         tableSerialize + sqlLen + 4096;
+         tableSerialize + sqlLen + 4096 + pQueryInfo->bufLen;
 }
 
 static char *doSerializeTableInfo(SQueryTableMsg* pQueryMsg, SSqlObj *pSql, char *pMsg) {
@@ -752,6 +752,7 @@ int tscBuildQueryMsg(SSqlObj *pSql, SSqlInfo *pInfo) {
   pQueryMsg->queryType      = htonl(pQueryInfo->type);
   pQueryMsg->vgroupLimit    = htobe64(pQueryInfo->vgroupLimit);
   pQueryMsg->sqlstrLen      = htonl(sqlLen);
+  pQueryMsg->prevResultLen  = htonl(pQueryInfo->bufLen);
 
   size_t numOfOutput = tscSqlExprNumOfExprs(pQueryInfo);
   pQueryMsg->numOfOutput = htons((int16_t)numOfOutput);  // this is the stage one output column number
@@ -987,6 +988,11 @@ int tscBuildQueryMsg(SSqlObj *pSql, SSqlInfo *pInfo) {
       
       pMsg += pCond->len;
     }
+  }
+
+  if (pQueryInfo->bufLen > 0) {
+    memcpy(pMsg, pQueryInfo->buf, pQueryInfo->bufLen);
+    pMsg += pQueryInfo->bufLen;
   }
 
   SCond* pCond = &pQueryInfo->tagCond.tbnameCond;
